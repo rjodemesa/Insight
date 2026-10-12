@@ -186,4 +186,15 @@ export const MIGRATIONS: string[] = [
     value TEXT NOT NULL
   );
   `,
+  /* v2 — Phase 1 ingestion */ `
+  ALTER TABLE ingest_jobs ADD COLUMN source_kind TEXT;
+  ALTER TABLE ingest_jobs ADD COLUMN stored_path TEXT;
+  ALTER TABLE ingest_jobs ADD COLUMN file_bytes INTEGER;
+  ALTER TABLE ingest_jobs ADD COLUMN progress REAL NOT NULL DEFAULT 0;
+  ALTER TABLE ingest_jobs ADD COLUMN stage TEXT;
+  CREATE INDEX idx_ingest_status ON ingest_jobs(status, id);
+  ALTER TABLE reviews ADD COLUMN redaction_count INTEGER NOT NULL DEFAULT 0;
+  CREATE INDEX idx_reviews_ingest ON reviews(ingest_id);
+  CREATE INDEX idx_reviews_language ON reviews(language);
+  `,
 ];

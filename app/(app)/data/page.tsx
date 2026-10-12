@@ -1,9 +1,10 @@
-import Placeholder from "@/components/Placeholder";
+import DataWorkspace from "@/components/data/DataWorkspace";
 
-export default function Page() {
+export default function DataPage() {
   return (
-    <Placeholder title="Data" phase={1}>
-      <p>Excel upload with progress and cancel, header validation, data-quality report, redaction and ingest history.</p>
-    </Placeholder>
+    <div className="space-y-6">
+      <h1 className="text-2xl font-semibold">Data</h1>
+      <DataWorkspace />
+    </div>
   );
 }

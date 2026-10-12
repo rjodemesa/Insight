@@ -4,7 +4,7 @@ An internal web app for P&G Philippines teams. It turns online consumer reviews 
 
 Pipeline: **Ingest Excel → clean/validate → redact personal data (reversible) → product mapping → NLP tagging → scoring → GenAI explanation → dashboards → alerts → audit log.**
 
-> **Status: Phase 0 (scaffold).** Sign-in, roles, the database schema, the audit chain and the theme are in place. The tabs are placeholders. See [docs/PHASE0.md](docs/PHASE0.md) for the file tree, data model and API plan.
+> **Status: Phase 1 (ingestion and privacy).** Sign-in, roles, the audit chain, Excel/CSV import with progress and cancel, the data-quality report and reversible redaction are working. Dashboards, NLP and AI arrive in Phases 2–5. See [docs/PHASE0.md](docs/PHASE0.md) for the overall plan.
 
 ## Run it
 
@@ -21,7 +21,30 @@ On the first `npm run dev`, the app does two things:
 
 **Back up `PII_VAULT_KEY`.** Without it, redacted originals cannot be restored.
 
-Other commands: `npm run build && npm start` (production), `npm test`, `npm run typecheck`, `npm run seed`.
+Other commands: `npm run build && npm start` (production), `npm test`, `npm run typecheck`, `npm run seed`, `npm run fixture` (rebuilds the synthetic sample file).
+
+## Importing data
+
+- **In the app:** Data tab → drag in an `.xlsx`, `.csv` or `.csv.gz` file (up to 250 MB) with the 32 standard columns. You'll see a progress bar and a Cancel button. A cancelled or failed import keeps no rows.
+- **From the command line** (IT): stop `npm run dev` first, then run `npm run import -- "C:/path/to/file.csv.gz"`.
+- Excel files: the first sheet with the 32 columns is imported. Other sheets, such as `PointerStorage`, are ignored.
+- Duplicates are matched on `retailerReviewId`, within the file and against earlier imports. They're flagged and kept out of analysis.
+- Try it with `fixtures/sample_reviews.xlsx`: 200 synthetic rows, no real data.
+
+## Redaction and reversal
+
+During import, before anything is stored, the app finds personal data in the review title and text and swaps it for tokens like `[PHONE_001]` (the same value in one review always gets the same token). It looks for:
+- emails, PH mobile and landline numbers
+- order, tracking and reference numbers, and long digit runs
+- links and @handles
+- barangay, purok, block-and-lot and street cues
+- names after cues like "ako si", "my name is", "po si" or "this is", and sign-offs like "- Ana"
+
+Customer image links are never shown, only counted. Rules are in `lib/redact/rules.ts`.
+
+The originals go into `pii_vault`, encrypted with AES-256-GCM using `PII_VAULT_KEY`. Each ciphertext is bound to its review, field and token. Only an IT officer can reveal a record (`POST /api/admin/pii/reveal`), a reason of at least 10 characters is required, and every reveal is audited.
+
+Detection is best-effort: names without a cue word, especially in Taglish, can be missed, and some links or digit strings are redacted when they don't need to be.
 
 ## Environment variables
 
@@ -56,5 +79,6 @@ Colours and fonts are placeholder tokens in `app/globals.css`, mirrored in `lib/
 
 ## Limitations (current phase)
 
-- No ingestion, NLP, dashboards or AI yet. These arrive in Phases 1–5.
+- No NLP tagging, product mapping, dashboards or AI yet. These arrive in Phases 2–5.
+- Uploaded files are deleted once their import finishes; only the redacted rows are kept.
 - The login rate limiter and job runner are in-process, so run a single server instance.
