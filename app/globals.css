@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens: the single place to drop in official brand colours and fonts.
+ * The values below are PLACEHOLDER blues, not official P&G colours.
+ * All text/background pairs below meet WCAG AA (4.5:1) contrast.
+ * lib/theme.ts mirrors these for charts (Recharts needs literal colours).
+ */
+:root {
+  --color-brand: #0047bb;        /* primary actions, active nav */
+  --color-brand-strong: #00307d; /* hover, header */
+  --color-brand-soft: #e8f0fc;   /* selected rows, chips */
+  --color-ink: #14213d;          /* body text */
+  --color-ink-muted: #4a5873;    /* secondary text */
+  --color-surface: #ffffff;
+  --color-canvas: #f4f6fa;
+  --color-border: #d5dbe6;
+  --color-focus: #ffb81c;
+
+  --color-positive: #1b7f3b;
+  --color-neutral: #5c6577;
+  --color-negative: #b42318;
+
+  /* Provenance labels */
+  --color-observed: #1f5fbf;
+  --color-derived: #6941c6;
+  --color-ai: #b54708;
+  --color-estimated: #475467;
+
+  --font-brand: ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --radius: 0.5rem;
+}
+
+@theme inline {
+  --color-brand: var(--color-brand);
+  --color-brand-strong: var(--color-brand-strong);
+  --color-brand-soft: var(--color-brand-soft);
+  --color-ink: var(--color-ink);
+  --color-ink-muted: var(--color-ink-muted);
+  --color-surface: var(--color-surface);
+  --color-canvas: var(--color-canvas);
+  --color-line: var(--color-border);
+  --color-positive: var(--color-positive);
+  --color-negative: var(--color-negative);
+  --color-observed: var(--color-observed);
+  --color-derived: var(--color-derived);
+  --color-ai: var(--color-ai);
+  --color-estimated: var(--color-estimated);
+  --font-sans: var(--font-brand);
+}
+
+html,
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-brand);
+}
+
+/* Visible keyboard focus everywhere */
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+}
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  z-index: 50;
+  background: var(--color-surface);
+  padding: 0.5rem 1rem;
+}

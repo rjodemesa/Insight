@@ -1,0 +1,25 @@
+# dependencies / build
+node_modules/
+.next/
+out/
+coverage/
+next-env.d.ts
+*.tsbuildinfo
+
+# secrets — keep only the example
+.env*
+!.env.example
+
+# consumer data must NEVER be committed
+/data/
+/uploads/
+*.db
+*.db-*
+*.sqlite*
+*.xlsx
+!fixtures/sample_reviews.xlsx
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
