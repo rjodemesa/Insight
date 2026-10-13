@@ -1,7 +1,7 @@
 import "server-only";
 
 /** Server-only env access. Never expose these via NEXT_PUBLIC_. */
-export type AIProviderName = "mock" | "watsonx" | "gemini";
+export type AIProviderName = "mock" | "gemini";
 
 function optional(name: string): string | undefined {
   const v = process.env[name];
@@ -26,8 +26,14 @@ export function piiVaultKey(): Buffer {
 }
 
 export function aiProvider(): AIProviderName {
-  const p = (optional("AI_PROVIDER") ?? "mock").toLowerCase();
-  return p === "watsonx" || p === "gemini" ? p : "mock";
+  return (optional("AI_PROVIDER") ?? "mock").toLowerCase() === "gemini" ? "gemini" : "mock";
+}
+
+/** Default Gemini model. Override with GEMINI_MODEL. */
+export const DEFAULT_GEMINI_MODEL = "gemini-3.8-flash";
+
+export function geminiConfig(): { apiKey: string | undefined; model: string } {
+  return { apiKey: optional("GEMINI_API_KEY"), model: optional("GEMINI_MODEL") ?? DEFAULT_GEMINI_MODEL };
 }
 
 export const isProduction = process.env.NODE_ENV === "production";

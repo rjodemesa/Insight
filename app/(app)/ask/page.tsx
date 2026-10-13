@@ -1,9 +1,14 @@
-import Placeholder from "@/components/Placeholder";
+import { Suspense } from "react";
+import AskWorkspace from "@/components/ask/AskWorkspace";
 
 export default function Page() {
   return (
-    <Placeholder title="Ask AI" phase={4}>
-      <p>Chat over the loaded data, scoped by filters, with cited review IDs and sample sizes.</p>
-    </Placeholder>
+    <div className="space-y-4">
+      <h1 className="text-2xl font-semibold">Ask AI</h1>
+      {/* Filters are read from the URL, which needs a Suspense boundary. */}
+      <Suspense>
+        <AskWorkspace />
+      </Suspense>
+    </div>
   );
 }

@@ -131,6 +131,11 @@ function ReviewItem({ r }: { r: Review }) {
             {r.sentiment}
           </span>
         )}
+        {r.aiSentiment && r.aiSentiment !== r.sentiment && (
+          <span className="rounded-full border border-ai px-2 py-0.5 text-ai" title="Second opinion from AI tagging. The rule-based sentiment is still used in the charts.">
+            AI reads it as {r.aiSentiment}
+          </span>
+        )}
         {r.ratingTextConflict === 1 && <span className="rounded-full border border-[#c98500] px-2 py-0.5">rating disagrees with text</span>}
         {r.themes.map((t) => (
           <span key={t.theme} className="rounded-full bg-canvas px-2 py-0.5"
@@ -141,6 +146,7 @@ function ReviewItem({ r }: { r: Review }) {
           </span>
         ))}
         {(r.sentiment || r.themes.length > 0) && <ProvenanceBadge kind={r.tagSource === "AI" ? "AI" : "DERIVED"} />}
+        {r.themes.some((t) => t.source === "AI") && <ProvenanceBadge kind="AI" />}
         <span className="ml-auto flex gap-3">
           <button type="button" onClick={() => setFeedback(feedback === "tag" ? null : "tag")} className="text-brand underline">Is a tag wrong?</button>
           <button type="button" onClick={() => setFeedback(feedback === "pii" ? null : "pii")} className="text-brand underline">Missed personal info?</button>

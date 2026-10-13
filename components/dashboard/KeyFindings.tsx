@@ -11,7 +11,7 @@ const ICON: Record<Finding["kind"], string> = {
 
 /**
  * Plain-language summary built by fixed rules from the numbers on this page (DERIVED).
- * Phase 4 adds an AI-written summary grounded in these same facts.
+ * The AI summary beside it is grounded in these same facts.
  */
 export default function KeyFindings({ findings, query, loading }: { findings: Finding[] | null; query: string; loading: boolean }) {
   return (

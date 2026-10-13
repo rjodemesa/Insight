@@ -32,3 +32,8 @@ export function cacheKey(path: string, sp: URLSearchParams): string {
   const pairs = [...sp.entries()].sort(([a, x], [b, y]) => a.localeCompare(b) || x.localeCompare(y));
   return `${path}?${new URLSearchParams(pairs).toString()}`;
 }
+
+/** Changes whenever reviews or products change in this process. Part of longer-lived cache keys. */
+export function dataVersion(): number {
+  return version;
+}

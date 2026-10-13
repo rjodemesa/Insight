@@ -218,7 +218,7 @@ export function themes(conn: Conn, f: Filters, days = 30) {
     })),
     themes: list,
     provenance: { reviews: "DERIVED", share: "DERIVED", change: "DERIVED" } satisfies Record<string, Provenance>,
-    method: `Themes are tagged by rules (config/taxonomy.json). "change" compares the share of reviews mentioning the theme in the last ${days} days of the filtered data with the ${3 * days} days before (two-proportion z-test, |z| ≥ 1.96, at least 30 reviews in each window).`,
+    method: `Themes are tagged by rules (config/taxonomy.json), plus AI tags on reviews the rules missed when AI tagging has been run. "change" compares the share of reviews mentioning the theme in the last ${days} days of the filtered data with the ${3 * days} days before (two-proportion z-test, |z| ≥ 1.96, at least 30 reviews in each window).`,
   };
 }
 
@@ -373,6 +373,8 @@ export interface ReviewRow {
   title: string | null; text: string | null; language: string | null; sentiment: string | null; sentimentScore: number | null;
   confidence: number | null; ratingTextConflict: number | null; verified: number | null; helpful: number | null;
   images: number; trustWeight: number | null; redactions: number; duplicate: number; tagSource: string | null;
+  /** The AI's second opinion on sentiment, when the review has been AI-tagged. */
+  aiSentiment: string | null;
 }
 
 /** Redacted reviews with their tags. Never returns review URLs or vault contents. */
@@ -387,7 +389,8 @@ export function listReviews(conn: Conn, f: Filters, opts: { sort: ReviewSort; li
          r.language, r.sentiment, r.sentiment_score AS sentimentScore, r.confidence,
          r.rating_text_conflict AS ratingTextConflict, r.verified_purchase AS verified,
          r.helpful_review_count AS helpful, r.customer_image_count AS images, r.trust_weight AS trustWeight,
-         r.redaction_count AS redactions, r.is_duplicate AS duplicate, r.tag_source AS tagSource
+         r.redaction_count AS redactions, r.is_duplicate AS duplicate, r.tag_source AS tagSource,
+         r.ai_sentiment AS aiSentiment
        FROM reviews r LEFT JOIN products p ON p.id = r.product_id
        WHERE ${w.sql} ORDER BY ${ORDER[opts.sort]} LIMIT ? OFFSET ?`,
     )

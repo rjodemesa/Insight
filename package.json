@@ -14,7 +14,9 @@
     "test": "vitest run",
     "fixture": "tsx scripts/make-fixture.ts",
     "import": "tsx --conditions=react-server --env-file-if-exists=.env.local scripts/import.ts",
-    "reprocess": "tsx --conditions=react-server --env-file-if-exists=.env.local scripts/reprocess.ts"
+    "reprocess": "tsx --conditions=react-server --env-file-if-exists=.env.local scripts/reprocess.ts",
+    "ai-tag": "tsx --conditions=react-server --env-file-if-exists=.env.local scripts/ai-tag.ts",
+    "agent": "tsx --conditions=react-server --env-file-if-exists=.env.local scripts/agent.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",

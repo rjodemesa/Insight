@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { db, DB_PATH } from "@/lib/db";
 import { verifyAuditChain } from "@/lib/audit";
 import { getSession } from "@/lib/auth/session";
-import { aiProvider } from "@/lib/env";
+import { providerStatus } from "@/lib/ai";
 
 /** Public liveness check. IT officers also get system details. */
 export async function GET(_req: NextRequest) {
@@ -17,7 +17,7 @@ export async function GET(_req: NextRequest) {
     status: "ok",
     schemaVersion: conn.pragma("user_version", { simple: true }),
     dbBytes: size(DB_PATH) + size(`${DB_PATH}-wal`),
-    aiProvider: aiProvider(),
+    ai: providerStatus(),
     piiVaultKeyConfigured: Boolean(process.env.PII_VAULT_KEY),
     auditChain: verifyAuditChain(conn),
     users: (conn.prepare("SELECT COUNT(*) AS n FROM users").get() as { n: number }).n,

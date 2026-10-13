@@ -4,7 +4,7 @@ An internal web app for P&G Philippines teams. It turns online consumer reviews 
 
 Pipeline: **Ingest Excel → clean/validate → redact personal data (reversible) → product mapping → NLP tagging → scoring → GenAI explanation → dashboards → alerts → audit log.**
 
-> **Status: Phase 3 (UI).** Sign-in, roles, the audit chain, Excel/CSV import, the data-quality report, reversible redaction, sentiment and theme tagging, product mapping, the Intelligence Score and trend tests are working. So are the Dashboard and Insights screens, with global filters, drill-down, provenance labels, product merge/split, tag and redaction feedback, saved views and Excel export. AI arrives in Phase 4, and the Audit Log and Admin screens in Phase 5. See [docs/PHASE0.md](docs/PHASE0.md) for the overall plan.
+> **Status: Phase 4 (AI).** Sign-in, roles, the audit chain, Excel/CSV import, the data-quality report, reversible redaction, sentiment and theme tagging, product mapping, the Intelligence Score and trend tests are working. So are the Dashboard and Insights screens, with global filters, drill-down, provenance labels, product merge/split, tag and redaction feedback, saved views and Excel export. Phase 4 adds the AI summary, Ask AI, AI second-opinion tagging and agent alerts with approval, on Gemini or an offline mock. The Audit Log and Admin screens come in Phase 5. See [docs/PHASE0.md](docs/PHASE0.md) for the overall plan.
 
 ## Run it
 
@@ -60,21 +60,43 @@ Every import tags each review after redaction, so tagging only ever sees redacte
 
 To change the wording rules, edit `config/taxonomy.json` or a `config/lexicon.*.json` file and bump its `version`. Then stop the server and run `npm run reprocess`, which re-tags only reviews tagged with an older version (`npm run reprocess -- --all` re-tags everything). Run it once after upgrading so Phase 1 imports get tagged. On 75k reviews it takes a few seconds.
 
-Rule-based tagging has limits. Sarcasm, and complaints phrased without a sentiment word, can be read as neutral or positive. AI tagging (Phase 4) will add a second opinion.
+Rule-based tagging has limits. Sarcasm, and complaints phrased without a sentiment word, can be read as neutral or positive. `npm run ai-tag` adds an AI second opinion on those reviews (see [AI](#ai)).
 
 ## Using the app
 
 - **Filters** sit above every chart and live in the page address, so the back button undoes a filter and a copied link shares the exact view. Choices come from the data; no brand, retailer or category is hard-coded.
 - **Drill-down**: click a bar, a month, a tile or a finding to open the reviews behind it.
 - **Provenance**: every number carries OBSERVED, DERIVED or ESTIMATED; hover for the definition. "How is this calculated?" panels show the formulas from the code.
-- **Dashboard**: headline tiles, Key findings, sentiment over time, top themes, issues by Five Vectors, retailer comparison and brand ranking. Key findings are written by fixed rules from the numbers on the page; an AI summary is added in Phase 4. *Analyst hours saved* is ESTIMATED from an editable minutes-per-review assumption (default 1.5); changes are audited.
+- **Dashboard**: headline tiles, Key findings, sentiment over time, top themes, issues by Five Vectors, retailer comparison and brand ranking. Key findings are written by fixed rules from the numbers on the page; **Write summary** beside them asks the AI for a summary grounded in the same facts. Approved alerts show at the top. *Analyst hours saved* is ESTIMATED from an editable minutes-per-review assumption (default 1.5); changes are audited.
 - **Insights**: a theme explorer grouped by vector, product and brand rankings, product and brand pages with a score breakdown, and the review viewer. Under each review, **Is a tag wrong?** and **Missed personal info?** record feedback. Feedback does not change data; it is listed on the Data tab for whoever updates the taxonomy or redaction rules.
 - **Data → Product mapping review**: products with the weakest name matches come first. Tick products to **merge** them, or open one to **split** listing names off into a new product. Both are audited, and later imports and reprocessing keep them.
 - **Views ☆**: save the current filters under a name and persona, or start from a built-in view per persona. Views are private to each user.
 - **Export**: every chart and table has an Export link that downloads the filtered data as Excel. Each file includes an *About this export* sheet (filters, who, when, provenance of every column). Text is always the redacted text, for every role, and exports are audited. Review exports stop at 100,000 rows.
+- **Ask AI**: ask about the reviews under the current filters, in English, Filipino or Taglish. Naming a brand, retailer or theme narrows the answer to it. Answers cite facts [F#] and reviews [R#]; click a citation to check it.
+- **Alerts**: **Run agent now** checks the data for significant changes and proposes alerts with evidence. Each one needs **Approve** or **Dismiss**, with an optional note; decisions are final and audited.
 - Charts use blue for positive, gray for neutral and red for negative, a scale that stays distinguishable with red-green colour blindness. Each chart has a Table view.
 
 Aggregates are cached in memory for up to 5 minutes and cleared whenever an import, merge or split changes the data. `npx tsx scripts/bench-queries.ts` times the dashboard queries against the local database.
+
+## AI
+
+Set `AI_PROVIDER=gemini` and `GEMINI_API_KEY` (from Google AI Studio) in `.env.local`, then restart. `GEMINI_MODEL` defaults to `gemini-3.8-flash`. Without a key the app uses the **mock** provider: it works offline and restates the computed facts, and every AI panel says so. On Gemini's free tier Google may use prompts to improve its products, so use a paid key for real consumer data.
+
+How it stays trustworthy:
+- **Redacted text only.** The AI sees the same redacted text as users, never the PII vault.
+- **Grounded.** Each request carries numbered facts computed by the app (with sample sizes) and a few numbered reviews. The prompt tells the model to use nothing else and to cite inline. The server removes any citation that points at something it did not supply, and the UI flags claims with no citation.
+- **Labelled.** AI text carries the AI badge and names the model. The numbers behind it stay DERIVED.
+- **Audited.** Every AI call logs the provider, model, prompt version and a hash of the prompt. Ask AI logs the question's length, not its text.
+- **Bounded.** Each user can make 30 AI requests per 10 minutes. The same dashboard summary is reused for an hour unless you click Rewrite.
+
+**AI tagging** (`npm run ai-tag`) gives a second opinion on reviews the rules handle badly: reviews with text but no theme (7,983 in the current data) and reviews whose rating disagrees with the text. It sends 20 reviews per Gemini call and does 200 reviews per run by default (`-- --limit 1000`, `-- --scope untagged|conflict`, `-- --count` to see what is waiting). AI themes are stored with source `AI` next to rule tags and count in the theme charts. A rule or human tag on the same theme wins. The AI's sentiment is shown in the review viewer when it disagrees with the rules, but the charts keep using rule sentiment. Reprocessing keeps AI tags, and a taxonomy or model change queues the reviews again. It refuses to run on the mock unless you pass `--allow-mock`.
+
+**The agent** (`Run agent now` on the Alerts tab, or `npm run agent` on a schedule) runs fixed statistical checks. Whether an alert exists and how severe it is never depends on the AI:
+- a theme's negative mentions rising in the last 30 days against the 90 days before, overall and for the 8 largest brands (two-proportion z-test, at least 10 recent complaints);
+- the negative share rising in the latest month;
+- a retailer's negative share in the last 90 days being significantly above all other retailers.
+
+The AI then writes each alert's description and suggested next step from its evidence. If the AI fails, the alert is still proposed with rule-written text. The same change in the same time window is never proposed twice. On the current data (one retailer, flat negative share), the agent finds nothing to propose.
 
 ## Read API
 
@@ -95,6 +117,8 @@ All routes are GET and need a signed-in user. Responses include the active filte
 | `/api/views` | Your saved views and the persona presets |
 | `/api/export?kind=…` | Excel download: `reviews`, `products`, `brands`, `retailers`, `themes` or `trend` |
 
+AI routes (POST, CSRF header, audited): `/api/ai/summary` `{query, refresh?}`, `/api/ask` `{question, query, history}`, `/api/alerts/scan`, `/api/alerts/:id/decision` `{decision: approve|dismiss, note}`. `query` is the filter query string. GET `/api/ai/status` returns the provider and model; GET `/api/alerts?status=proposed|approved|dismissed|all` lists alerts.
+
 Changes (all need the CSRF header and are audited): `POST /api/products/merge` `{targetId, sourceIds}`, `POST /api/products/:id/split` `{aliasIds, name?}`, `POST /api/feedback/tag` `{reviewId, theme, suggested, comment}`, `POST /api/feedback/redaction` `{reviewId, note}`, `POST /api/views` `{name, persona, filters}`, `DELETE /api/views/:id`, `PUT /api/settings/estimates` `{minutesPerRecord}`.
 
 Every read route accepts the same filters; repeat a parameter to pass several values. The filters are `retailer`, `category`, `subcategory`, `brand`, `product` (id), `review` (id), `sentiment` (positive, neutral, negative, none), `language`, `theme`, `vector`, `themeSentiment`, `from` and `to` (YYYY-MM-DD, inclusive), `minRating`, `maxRating`, `verified`, `conflict`, `includeDuplicates` and `q` (text search in redacted text). Example: `/api/aggregates/themes?vector=Packaging&retailer=Lazada&from=2024-01-01`.
@@ -105,8 +129,9 @@ See [.env.example](.env.example). All values are server-side only; none use `NEX
 
 | Variable | Purpose |
 |---|---|
-| `AI_PROVIDER` | `mock` (default, offline), `watsonx` or `gemini` |
-| `GEMINI_*`, `AI_API_KEY`, `WATSONX_*` | Optional provider credentials |
+| `AI_PROVIDER` | `mock` (default, offline) or `gemini` |
+| `GEMINI_API_KEY` | Google AI Studio key, needed when `AI_PROVIDER=gemini` |
+| `GEMINI_MODEL` | Optional. Defaults to `gemini-3.8-flash` |
 | `PII_VAULT_KEY` | 32 bytes, base64. Encrypts the PII vault (AES-256-GCM). Redaction refuses to run without it |
 | `SESSION_SECRET` | At least 32 characters. Signs session cookies |
 | `INITIAL_IT_OFFICER_EMAIL` / `_PASSWORD` | First admin account, created by the seed script |
@@ -132,7 +157,9 @@ Colours and fonts are placeholder tokens in `app/globals.css`, mirrored in `lib/
 
 ## Limitations (current phase)
 
-- No AI summaries, Ask AI or alerts yet (Phase 4), and the Audit Log and Admin tabs are placeholders until Phase 5.
+- The Audit Log and Admin tabs are placeholders until Phase 5. AI settings are in `.env.local` until then.
+- Ask AI conversations are not saved; leaving the page clears them.
+- The AI request limit and summary cache are in memory, like the login limiter.
 - There is no dark mode yet; the colour tokens are light-only.
 - Uploaded files are deleted once their import finishes; only the redacted rows are kept.
 - The login rate limiter and job runner are in-process, so run a single server instance.

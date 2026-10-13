@@ -204,4 +204,16 @@ export const MIGRATIONS: string[] = [
   CREATE INDEX idx_alias_code ON product_aliases(retailer_product_code);
   CREATE INDEX idx_alias_upc ON product_aliases(upc);
   `,
+  /* v4 — Phase 4 AI second opinion and agent alerts */ `
+  ALTER TABLE reviews ADD COLUMN ai_sentiment TEXT CHECK (ai_sentiment IN ('positive','neutral','negative'));
+  ALTER TABLE reviews ADD COLUMN ai_version TEXT;
+  CREATE INDEX idx_reviews_ai_version ON reviews(ai_version);
+  ALTER TABLE alerts ADD COLUMN kind TEXT;
+  ALTER TABLE alerts ADD COLUMN dedupe_key TEXT;
+  ALTER TABLE alerts ADD COLUMN recommendation TEXT;
+  ALTER TABLE alerts ADD COLUMN drill TEXT;
+  ALTER TABLE alerts ADD COLUMN written_by TEXT;
+  ALTER TABLE alerts ADD COLUMN decision_note TEXT;
+  CREATE INDEX idx_alerts_key ON alerts(dedupe_key);
+  `,
 ];

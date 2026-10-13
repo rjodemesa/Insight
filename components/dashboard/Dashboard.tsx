@@ -16,6 +16,8 @@ import ShareBars from "@/components/charts/ShareBars";
 import RankingTable from "@/components/charts/RankingTable";
 import KpiRow from "./KpiRow";
 import KeyFindings from "./KeyFindings";
+import AiSummary from "@/components/ai/AiSummary";
+import { ActiveAlerts } from "@/components/alerts/AlertsWorkspace";
 
 type Summary = ReturnType<typeof summary>;
 type Trend = ReturnType<typeof trend>;
@@ -46,8 +48,12 @@ export default function Dashboard() {
     <div className="space-y-4">
       <FilterBar />
       {s.error && <p role="alert" className="text-sm text-negative">{s.error}</p>}
+      <ActiveAlerts />
       <KpiRow s={s.data} ops={ops.data} query={query} onOpsChange={ops.reload} />
-      <KeyFindings findings={findings} query={query} loading={s.loading || th.loading || r.loading} />
+      <div className="grid gap-4 lg:grid-cols-2">
+        <KeyFindings findings={findings} query={query} loading={s.loading || th.loading || r.loading} />
+        <AiSummary query={query} />
+      </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <SentimentTrend data={t.data} query={query} loading={t.loading} error={t.error} />

@@ -1,9 +1,10 @@
-import Placeholder from "@/components/Placeholder";
+import AlertsWorkspace from "@/components/alerts/AlertsWorkspace";
 
 export default function Page() {
   return (
-    <Placeholder title="Alerts" phase={4}>
-      <p>Agent-proposed alerts with evidence, severity and Approve or Dismiss.</p>
-    </Placeholder>
+    <div className="space-y-4">
+      <h1 className="text-2xl font-semibold">Alerts</h1>
+      <AlertsWorkspace />
+    </div>
   );
 }

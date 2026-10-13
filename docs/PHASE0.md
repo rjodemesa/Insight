@@ -7,12 +7,12 @@ app/
   layout.tsx, globals.css (theme tokens) ✓   page.tsx → /dashboard ✓
   login/ ✓   change-password/ ✓
   (app)/layout.tsx (session gate + nav) ✓
-  (app)/dashboard|data|insights|ask|alerts|audit|admin/page.tsx ✓ placeholders
+  (app)/dashboard|data|insights|ask|alerts ✓   audit|admin/page.tsx ✓ placeholders
   api/auth/login|logout|me|change-password ✓   api/health ✓
   api/ingest/* ✓         Phase 1  upload, job status, cancel, quality report
   api/reviews ✓  api/aggregates/* ✓  api/products/* ✓ (read)   Phase 2; product merge/split Phase 3
   api/export, api/views  Phase 3
-  api/ask, api/alerts/*  Phase 4
+  api/ai/*, api/ask, api/alerts/* ✓  Phase 4
   api/audit, api/admin/* Phase 5
 components/ AppNav.tsx ✓  Placeholder.tsx ✓  (charts, filters, Provenance badge: Phase 3)
 lib/
@@ -20,7 +20,7 @@ lib/
   auth/ session.ts, guard.ts, password.ts, rateLimit.ts ✓
   ingest/ ✓ (streaming xlsx, validation)  redact/ ✓ (rules, vault)   Phase 1
   nlp/ ✓ (language, sentiment, taxonomy, reprocess)  mapping/ ✓  score/ ✓  trend/ ✓  query/ ✓  insights/ ✓   Phase 2
-  ai.ts (AIProvider: mock | watsonx | gemini), agent/                Phase 4
+  ai/ ✓ (provider: mock | gemini, grounding, summary, ask, tagging)  agent/ ✓ (detect, alerts)   Phase 4
 config/ taxonomy.json ✓  lexicon.en|fil|emoji.json ✓     Phase 2
 fixtures/ sample_reviews.xlsx (200 synthetic rows) ✓  Phase 1
 scripts/ setup-env.mjs ✓  seed.ts ✓
@@ -58,7 +58,7 @@ middleware.ts ✓  public/brand/logo.svg ✓ (placeholder)
 | /api/products/* (merge, split) | POST | user | 3 |
 | /api/feedback/tag, /api/feedback/redaction | POST | user | 3 |
 | /api/export, /api/views | POST/GET | user | 3 |
-| /api/ask, /api/alerts, /api/alerts/:id/decision | POST/GET/POST | user | 4 |
+| /api/ai/status, /api/ai/summary, /api/ask, /api/alerts, /api/alerts/scan, /api/alerts/:id/decision | GET/POST | user | 4 ✓ |
 | /api/audit (own entries; all for IT), /api/audit/verify | GET | user / it_officer | 5 |
 | /api/admin/users, /pii/reveal, /pii/restore, /purge, /settings, /ai/test | various | it_officer | 5 |
 
