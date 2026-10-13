@@ -19,7 +19,7 @@ let conn: Database.Database;
 let user: number;
 
 beforeAll(async () => {
-  const fixture = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "insight-verify-")), "sample_reviews.xlsx");
+  const fixture = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "prism-verify-")), "sample_reviews.xlsx");
   await makeFixture(fixture);
   conn = openDb(":memory:");
   user = Number(conn.prepare("INSERT INTO users (email, password_hash, role) VALUES ('v@x.ph', 'h', 'user')").run().lastInsertRowid);

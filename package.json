@@ -1,8 +1,8 @@
 {
-  "name": "insight",
+  "name": "prism",
   "version": "0.1.0",
   "private": true,
-  "description": "P&G Philippines Consumer Insight Platform",
+  "description": "Prism: A Digital Platform for Consumer-Driven Brand Growth (P&G Philippines academic prototype)",
   "scripts": {
     "predev": "node scripts/setup-env.mjs && npm run seed --silent",
     "dev": "next dev",

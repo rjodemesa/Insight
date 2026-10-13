@@ -23,7 +23,7 @@ let jobId: number;
 let admin: number;
 
 beforeAll(async () => {
-  const fixture = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "insight-admin-")), "sample_reviews.xlsx");
+  const fixture = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "prism-admin-")), "sample_reviews.xlsx");
   await makeFixture(fixture);
   conn = openDb(":memory:");
   admin = Number(conn.prepare("INSERT INTO users (email, password_hash, role, must_change_password) VALUES ('it@x.ph', 'h', 'it_officer', 0)").run().lastInsertRowid);

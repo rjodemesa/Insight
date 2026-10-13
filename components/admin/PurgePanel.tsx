@@ -45,7 +45,7 @@ export default function PurgePanel() {
   return (
     <div className="space-y-4">
       <p role="note" className="rounded border border-negative/40 bg-surface p-3 text-sm">
-        <span className="font-medium text-negative">Everything on this tab is permanent.</span> There is no undo and no backup is made. Copy <code>data/insight.db</code> first if you might need the data again. The audit log keeps a record of every purge.
+        <span className="font-medium text-negative">Everything on this tab is permanent.</span> There is no undo and no backup is made. Copy <code>data/prism.db</code> first if you might need the data again. The audit log keeps a record of every purge.
       </p>
       {error && <p role="alert" className="text-sm text-negative">{error}</p>}
       {notice && <p role="status" className="text-sm text-positive">{notice}</p>}

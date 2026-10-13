@@ -14,7 +14,7 @@ import { revealRecord } from "@/lib/redact/vault";
 import { makeFixture } from "../scripts/make-fixture";
 
 const key = crypto.randomBytes(32);
-const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "insight-test-"));
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "prism-test-"));
 const fixture = path.join(tmp, "sample_reviews.xlsx");
 let fixtureRows: Record<string, string>[];
 

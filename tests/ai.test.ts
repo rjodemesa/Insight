@@ -99,7 +99,7 @@ describe("citations", () => {
 // ---------------------------------------------------------------- features over the fixture
 
 let conn: Database.Database;
-const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "insight-ai-"));
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "prism-ai-"));
 
 beforeAll(async () => {
   const fixture = path.join(tmp, "sample_reviews.xlsx");

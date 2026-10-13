@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
   return new Response(Readable.toWeb(stream) as ReadableStream, {
     headers: {
       "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "Content-Disposition": `attachment; filename="insight-${kind}-${date}.xlsx"`,
+      "Content-Disposition": `attachment; filename="prism-${kind}-${date}.xlsx"`,
       "Cache-Control": "no-store",
     },
   });

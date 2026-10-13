@@ -1,6 +1,8 @@
-# Insight: Consumer Insight Platform
+# Prism
 
-An internal web app for P&G Philippines teams. It turns online consumer reviews from Excel exports into trusted, explainable insight.
+**A Digital Platform for Consumer-Driven Brand Growth**
+
+Prism (formerly Insight) is an internal web app for P&G Philippines teams. It turns online consumer reviews from Excel exports into trusted, explainable insight.
 
 Pipeline: **Ingest Excel → clean/validate → redact personal data (reversible) → product mapping → NLP tagging → scoring → GenAI explanation → dashboards → alerts → audit log.**
 
@@ -17,7 +19,7 @@ npm run dev        # http://localhost:3000
 
 On the first `npm run dev`, the app does two things:
 1. It creates `.env.local` with random `SESSION_SECRET` and `PII_VAULT_KEY` values and prints a temporary IT-officer password. The file is never overwritten.
-2. It creates the SQLite database in `./data/` and the first IT officer, `admin@insight.local`. You must change the password at first sign-in.
+2. It creates the SQLite database in `./data/` and the first IT officer, `admin@prism.local` (copies set up before the rename keep `admin@insight.local`). You must change the password at first sign-in.
 
 **Back up `PII_VAULT_KEY`.** Without it, redacted originals cannot be restored.
 
@@ -168,6 +170,7 @@ See [.env.example](.env.example). All values are server-side only; none use `NEX
 | `GEMINI_MODEL` | Optional. Defaults to `gemini-3.8-flash` |
 | `PII_VAULT_KEY` | 32 bytes, base64. Encrypts the PII vault (AES-256-GCM). Redaction refuses to run without it |
 | `SESSION_SECRET` | At least 32 characters. Signs session cookies |
+| `PRISM_DB_PATH` | Optional. Database file; defaults to `data/prism.db`. A `data/insight.db` from before the rename is renamed automatically at the next start |
 | `INITIAL_IT_OFFICER_EMAIL` / `_PASSWORD` | First admin account, created by the seed script |
 
 ## Roles

@@ -11,7 +11,7 @@ import { FilterError, parseFilters, whereClause } from "@/lib/query/filters";
 import { reprocess } from "@/lib/nlp/reprocess";
 import { makeFixture } from "../scripts/make-fixture";
 
-const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "insight-insights-"));
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "prism-insights-"));
 const fixture = path.join(tmp, "sample_reviews.xlsx");
 let conn: Database.Database;
 const F = (qs = "") => parseFilters(new URLSearchParams(qs));

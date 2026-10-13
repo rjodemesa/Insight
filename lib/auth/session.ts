@@ -20,7 +20,7 @@ export interface Session {
   idHash: string;
 }
 
-export const SESSION_COOKIE = "insight_session";
+export const SESSION_COOKIE = "prism_session";
 const SESSION_TTL_MS = 8 * 60 * 60 * 1000; // one working day
 
 const sha256 = (s: string) => crypto.createHash("sha256").update(s).digest("hex");

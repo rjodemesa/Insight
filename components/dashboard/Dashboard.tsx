@@ -46,7 +46,7 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-4">
-      <FilterBar />
+      <FilterBar collapsible />
       {s.error && <p role="alert" className="text-sm text-negative">{s.error}</p>}
       <ActiveAlerts />
       <KpiRow s={s.data} ops={ops.data} query={query} onOpsChange={ops.reload} />

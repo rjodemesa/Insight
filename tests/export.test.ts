@@ -14,7 +14,7 @@ import { hoursSaved, keyFindings } from "@/lib/insights/derive";
 import { operations } from "@/lib/insights/operations";
 import { makeFixture } from "../scripts/make-fixture";
 
-const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "insight-export-"));
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "prism-export-"));
 const fixture = path.join(tmp, "sample_reviews.xlsx");
 let conn: Database.Database;
 const F = (qs = "") => parseFilters(new URLSearchParams(qs));

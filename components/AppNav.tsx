@@ -57,11 +57,14 @@ export default function AppNav({ role, email, csrfToken }: { role: Role; email: 
   return (
     <header className="border-b border-line bg-surface text-ink">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-4 px-4 py-2 sm:px-6">
-        <Link href="/dashboard" className="flex items-center gap-2" aria-label="P&G Consumer Insight, go to Dashboard">
+        <Link href="/dashboard" className="flex items-center gap-2" aria-label="Prism, go to Dashboard">
           <img src="/brand/logo.svg" alt="" width={36} height={36} />
           <span className="leading-tight">
-            <span className="block text-sm font-semibold text-brand">Consumer Insight</span>
+            <span className="block text-lg font-semibold tracking-tight text-brand">Prism</span>
             <span className="block text-[11px] text-ink-muted">P&amp;G Philippines</span>
+          </span>
+          <span className="ml-2 hidden max-w-56 border-l border-line pl-3 text-xs leading-snug text-ink-muted xl:block">
+            A Digital Platform for Consumer-Driven Brand Growth
           </span>
         </Link>
         <nav aria-label="Main" className="flex flex-1 flex-wrap gap-1">

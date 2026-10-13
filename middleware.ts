@@ -6,7 +6,7 @@ import { NextResponse, type NextRequest } from "next/server";
  * every API route. API routes are excluded here so large uploads are not buffered.
  */
 export function middleware(req: NextRequest) {
-  if (req.nextUrl.pathname === "/login" || req.cookies.has("insight_session")) return NextResponse.next();
+  if (req.nextUrl.pathname === "/login" || req.cookies.has("prism_session")) return NextResponse.next();
   return NextResponse.redirect(new URL("/login", req.url));
 }
 

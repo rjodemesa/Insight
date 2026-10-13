@@ -30,10 +30,11 @@ export default function LoginPage() {
         <div className="flex items-center gap-3">
           <img src="/brand/logo.svg" alt="P&G" width={48} height={48} />
           <div>
-            <h1 className="text-xl font-semibold text-brand">Consumer Insight</h1>
-            <p className="text-sm text-ink-muted">P&amp;G Philippines · sign in with your local account</p>
+            <h1 className="text-2xl font-semibold tracking-tight text-brand">Prism</h1>
+            <p className="text-sm leading-snug">A Digital Platform for Consumer-Driven Brand Growth</p>
           </div>
         </div>
+        <p className="text-sm text-ink-muted">P&amp;G Philippines · sign in with your local account</p>
         <label className="block text-sm font-medium">
           Email
           <input name="email" type="email" required autoComplete="username"

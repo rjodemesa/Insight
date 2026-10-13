@@ -24,3 +24,23 @@ describe("audit chain", () => {
     expect(verifyAuditChain(conn)).toMatchObject({ ok: false, brokenAt: 3 });
   });
 });
+
+describe("database file name", () => {
+  it("renames a pre-Prism insight.db (with its WAL) once, and leaves prism.db alone", async () => {
+    const fs = await import("node:fs");
+    const os = await import("node:os");
+    const path = await import("node:path");
+    const { resolveDbPath } = await import("@/lib/db");
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "prism-dbname-"));
+    expect(resolveDbPath(dir)).toBe(path.join(dir, "prism.db"));
+    fs.writeFileSync(path.join(dir, "insight.db"), "db");
+    fs.writeFileSync(path.join(dir, "insight.db-wal"), "wal");
+    expect(resolveDbPath(dir)).toBe(path.join(dir, "prism.db"));
+    expect(fs.readFileSync(path.join(dir, "prism.db"), "utf8")).toBe("db");
+    expect(fs.readFileSync(path.join(dir, "prism.db-wal"), "utf8")).toBe("wal");
+    expect(fs.existsSync(path.join(dir, "insight.db"))).toBe(false);
+    fs.writeFileSync(path.join(dir, "insight.db"), "stray");
+    expect(resolveDbPath(dir)).toBe(path.join(dir, "prism.db"));
+    expect(fs.readFileSync(path.join(dir, "prism.db"), "utf8")).toBe("db");
+  });
+});

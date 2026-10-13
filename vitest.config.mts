@@ -9,5 +9,6 @@ export default defineConfig({
       "server-only": path.resolve(import.meta.dirname, "node_modules/server-only/empty.js"),
     },
   },
-  test: { environment: "node", include: ["tests/**/*.test.ts"] },
+  // PRISM_DB_PATH keeps tests away from the real data/ folder (no rename, no reads).
+  test: { environment: "node", include: ["tests/**/*.test.ts"], env: { PRISM_DB_PATH: ":memory:" } },
 });
