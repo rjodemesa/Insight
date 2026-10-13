@@ -4,7 +4,7 @@ An internal web app for P&G Philippines teams. It turns online consumer reviews 
 
 Pipeline: **Ingest Excel → clean/validate → redact personal data (reversible) → product mapping → NLP tagging → scoring → GenAI explanation → dashboards → alerts → audit log.**
 
-> **Status: Phase 4 (AI).** Sign-in, roles, the audit chain, Excel/CSV import, the data-quality report, reversible redaction, sentiment and theme tagging, product mapping, the Intelligence Score and trend tests are working. So are the Dashboard and Insights screens, with global filters, drill-down, provenance labels, product merge/split, tag and redaction feedback, saved views and Excel export. Phase 4 adds the AI summary, Ask AI, AI second-opinion tagging and agent alerts with approval, on Gemini or an offline mock. The Audit Log and Admin screens come in Phase 5. See [docs/PHASE0.md](docs/PHASE0.md) for the overall plan.
+> **Status: Phase 5 (complete).** Sign-in, roles, the audit chain, Excel/CSV import, the data-quality report, reversible redaction, sentiment and theme tagging, product mapping, the Intelligence Score and trend tests are working. So are the Dashboard and Insights screens, with global filters, drill-down, provenance labels, product merge/split, tag and redaction feedback, saved views and Excel export. Phase 4 adds the AI summary, Ask AI, AI second-opinion tagging and agent alerts with approval, on Gemini or an offline mock. Phase 5 adds the Audit Log screen (chain check, CSV export) and the Admin screen (system health, users, personal data, AI, purge). See [docs/PHASE0.md](docs/PHASE0.md) for the overall plan.
 
 ## Run it
 
@@ -98,6 +98,23 @@ How it stays trustworthy:
 
 The AI then writes each alert's description and suggested next step from its evidence. If the AI fails, the alert is still proposed with rule-written text. The same change in the same time window is never proposed twice. On the current data (one retailer, flat negative share), the agent finds nothing to propose.
 
+## Audit Log and Admin
+
+**Audit Log** lists every sign-in, import, export, AI call, alert decision and admin change, newest first, with filters by action, status, user and date (UTC days; times are shown in Manila time). Users see their own entries. IT officers see everyone's and get two more buttons:
+- **Verify chain** re-hashes the whole log and names the first entry changed outside the app.
+- **Export CSV** downloads the filtered log. Cells that a spreadsheet would run as formulas are neutralised. The export itself is audited.
+
+**Admin** (IT officers only; the server refuses everyone else):
+- **System health**: checks for the schema version, the audit chain, whether `PII_VAULT_KEY` actually decrypts the vault, the AI provider, tagging that needs reprocessing, stuck imports, and whether there are at least two IT officers. Also shows the main counts and the database size.
+- **Users**: add users, change roles, disable or enable accounts, and reset passwords. New accounts and resets get a one-time temporary password that is shown once and must be changed at sign-in. Role changes, disabling and resets sign the user out everywhere. You cannot change your own role or disable yourself, and there is always at least one active IT officer.
+- **Personal data**: reveal one review's originals (reason required, audited) and restore wrongly redacted values. Restoring puts the original back into the stored text for every user, export and AI request, deletes it from the vault and re-tags the review, so use it only for false positives such as an order number read as personal data. The tab also lists reviews users flagged for missed personal data, and what the vault holds.
+- **AI**: the provider, model and key status in use (read-only: they live in `.env.local`, never in the database), a **Test connection** button that sends no review data, and the last 7 days of AI calls with token counts.
+- **Purge** (irreversible, exact confirmation text required, audited):
+  - delete an import with its reviews, tags, vault entries and feedback, plus products left with no reviews;
+  - purge the vault's customer image links, or the whole vault, which makes redaction permanent.
+
+  The audit log is never purged. The database file does not shrink until it is vacuumed.
+
 ## Read API
 
 All routes are GET and need a signed-in user. Responses include the active filters, a `provenance` map and the method text.
@@ -116,6 +133,8 @@ All routes are GET and need a signed-in user. Responses include the active filte
 | `/api/feedback` | Tag corrections and missed-redaction flags |
 | `/api/views` | Your saved views and the persona presets |
 | `/api/export?kind=…` | Excel download: `reviews`, `products`, `brands`, `retailers`, `themes` or `trend` |
+
+Admin routes (IT officers only; changes need the CSRF header and are audited): GET `/api/admin/health`, `/api/admin/ai`, `/api/admin/pii`, `/api/admin/purge`, `/api/admin/users`; POST `/api/admin/users` `{email, displayName, role}`, PATCH `/api/admin/users/:id` `{role?, disabled?, displayName?}`, POST `/api/admin/users/:id/reset-password`, `/api/admin/pii/reveal` `{reviewId, reason}`, `/api/admin/pii/restore` `{reviewId, tokens, reason}`, `/api/admin/purge` `{target: import, id, confirm}` or `{target: vault, scope: images|all, confirm}`, `/api/admin/ai/test`. Audit: GET `/api/audit` (own entries, or all for IT officers), `/api/audit/verify` and `/api/audit/export` (IT officers).
 
 AI routes (POST, CSRF header, audited): `/api/ai/summary` `{query, refresh?}`, `/api/ask` `{question, query, history}`, `/api/alerts/scan`, `/api/alerts/:id/decision` `{decision: approve|dismiss, note}`. `query` is the filter query string. GET `/api/ai/status` returns the provider and model; GET `/api/alerts?status=proposed|approved|dismissed|all` lists alerts.
 
@@ -157,7 +176,8 @@ P&G branding, for an academic presentation only: this is not an official P&G pro
 
 ## Limitations (current phase)
 
-- The Audit Log and Admin tabs are placeholders until Phase 5. AI settings are in `.env.local` until then.
+- AI settings are edited in `.env.local`, not in the app, by design.
+- Purges do not shrink the database file; run `VACUUM` with the server stopped to reclaim space.
 - Ask AI conversations are not saved; leaving the page clears them.
 - The AI request limit and summary cache are in memory, like the login limiter.
 - There is no dark mode yet; the colour tokens are light-only.

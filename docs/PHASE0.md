@@ -7,14 +7,14 @@ app/
   layout.tsx, globals.css (theme tokens) ✓   page.tsx → /dashboard ✓
   login/ ✓   change-password/ ✓
   (app)/layout.tsx (session gate + nav) ✓
-  (app)/dashboard|data|insights|ask|alerts ✓   audit|admin/page.tsx ✓ placeholders
+  (app)/dashboard|data|insights|ask|alerts|audit|admin ✓
   api/auth/login|logout|me|change-password ✓   api/health ✓
   api/ingest/* ✓         Phase 1  upload, job status, cancel, quality report
   api/reviews ✓  api/aggregates/* ✓  api/products/* ✓ (read)   Phase 2; product merge/split Phase 3
   api/export, api/views  Phase 3
   api/ai/*, api/ask, api/alerts/* ✓  Phase 4
-  api/audit, api/admin/* Phase 5
-components/ AppNav.tsx ✓  Placeholder.tsx ✓  (charts, filters, Provenance badge: Phase 3)
+  api/audit/*, api/admin/* ✓  Phase 5
+components/ AppNav.tsx ✓  (charts, filters, Provenance badge: Phase 3)
 lib/
   db.ts, schema.ts (migrations) ✓   audit.ts (hash chain) ✓   env.ts ✓   theme.ts ✓
   auth/ session.ts, guard.ts, password.ts, rateLimit.ts ✓
@@ -25,7 +25,7 @@ config/ taxonomy.json ✓  lexicon.en|fil|emoji.json ✓     Phase 2
 fixtures/ sample_reviews.xlsx (200 synthetic rows) ✓  Phase 1
 scripts/ setup-env.mjs ✓  seed.ts ✓
 tests/ audit.test.ts ✓  auth.test.ts ✓
-middleware.ts ✓  public/brand/logo.svg ✓ (placeholder)
+middleware.ts ✓  public/brand/logo.svg ✓ (P&G logo, presentation only)
 ```
 
 ## Data model (SQLite, `lib/schema.ts`)
@@ -59,7 +59,7 @@ middleware.ts ✓  public/brand/logo.svg ✓ (placeholder)
 | /api/feedback/tag, /api/feedback/redaction | POST | user | 3 |
 | /api/export, /api/views | POST/GET | user | 3 |
 | /api/ai/status, /api/ai/summary, /api/ask, /api/alerts, /api/alerts/scan, /api/alerts/:id/decision | GET/POST | user | 4 ✓ |
-| /api/audit (own entries; all for IT), /api/audit/verify | GET | user / it_officer | 5 |
-| /api/admin/users, /pii/reveal, /pii/restore, /purge, /settings, /ai/test | various | it_officer | 5 |
+| /api/audit (own entries; all for IT), /api/audit/verify, /api/audit/export | GET | user / it_officer | 5 ✓ |
+| /api/admin/users, /health, /pii, /pii/reveal, /pii/restore, /purge, /ai, /ai/test | various | it_officer | 5 ✓ |
 
 Every protected route calls `guard(req, { roles })` from `lib/auth/guard.ts`. It checks the session, role and pending password change, and on mutations the CSRF header and Origin.

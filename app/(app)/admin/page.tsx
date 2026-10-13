@@ -1,16 +1,18 @@
-import { notFound } from "next/navigation";
+import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
-import Placeholder from "@/components/Placeholder";
+import AdminWorkspace from "@/components/admin/AdminWorkspace";
 
-export default async function AdminPage() {
+export default async function Page() {
+  // The nav hides this tab from users; the APIs also refuse them. This stops a typed URL.
   const session = await getSession();
-  if (session?.user.role !== "it_officer") notFound();
+  if (session?.user.role !== "it_officer") redirect("/dashboard");
   return (
-    <Placeholder title="Admin" phase={5}>
-      <p>User management, PII reveal and restore, purge, AI provider settings, redaction rules and system health.</p>
-      <p className="mt-2 text-sm">
-        System health is already available as JSON at <code>/api/health</code> (IT officers only see the details).
-      </p>
-    </Placeholder>
+    <div className="space-y-4">
+      <h1 className="text-2xl font-semibold">Admin</h1>
+      <Suspense>
+        <AdminWorkspace />
+      </Suspense>
+    </div>
   );
 }
