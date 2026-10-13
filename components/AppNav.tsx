@@ -12,6 +12,8 @@ interface Tab {
   /** Second key of the "g <key>" shortcut. */
   key: string;
   itOnly?: boolean;
+  /** Reached from the ≣ menu button and its shortcut, not shown in the tab row. */
+  menuOnly?: boolean;
 }
 
 export const TABS: Tab[] = [
@@ -20,7 +22,7 @@ export const TABS: Tab[] = [
   { href: "/insights", label: "Insights", icon: "◎", key: "i" },
   { href: "/ask", label: "Ask AI", icon: "✦", key: "k" },
   { href: "/alerts", label: "Alerts", icon: "⚑", key: "l" },
-  { href: "/audit", label: "Audit Log", icon: "≣", key: "a" },
+  { href: "/audit", label: "Audit Log", icon: "≣", key: "a", menuOnly: true },
   { href: "/admin", label: "Admin", icon: "⚙", key: "m", itOnly: true },
 ];
 
@@ -67,8 +69,8 @@ export default function AppNav({ role, email, csrfToken }: { role: Role; email: 
             A Digital Platform for Consumer-Driven Brand Growth
           </span>
         </Link>
-        <nav aria-label="Main" className="flex flex-1 flex-wrap gap-1">
-          {tabs.map((t) => {
+        <nav aria-label="Main" className="grid flex-1 grid-cols-3 gap-1 sm:max-w-md">
+          {tabs.filter((t) => !t.menuOnly).map((t) => {
             const active = pathname.startsWith(t.href);
             return (
               <Link
@@ -76,7 +78,7 @@ export default function AppNav({ role, email, csrfToken }: { role: Role; email: 
                 href={t.href}
                 aria-current={active ? "page" : undefined}
                 title={`${t.label} (g ${t.key})`}
-                className={`rounded px-3 py-1.5 text-sm ${active ? "bg-brand text-white" : "text-ink hover:bg-brand-soft"}`}
+                className={`rounded px-3 py-1 text-center text-sm ${active ? "bg-brand text-white" : "text-ink hover:bg-brand-soft"}`}
               >
                 <span aria-hidden="true" className="mr-1">{t.icon}</span>
                 {t.label}
@@ -87,7 +89,7 @@ export default function AppNav({ role, email, csrfToken }: { role: Role; email: 
         <Link href="/audit" title="Audit Log (g a)" aria-label="Audit Log" className="rounded px-2 py-1 text-ink-muted hover:bg-brand-soft">
           <span aria-hidden="true">≣</span>
         </Link>
-        <span className="text-sm text-ink-muted">
+        <span className="text-xs text-ink-muted">
           {email} · {role === "it_officer" ? "IT officer" : "User"}
         </span>
         <button onClick={logout} className="rounded border border-line px-3 py-1 text-sm hover:bg-brand-soft">
