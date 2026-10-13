@@ -85,6 +85,19 @@ describe("theme tagging", () => {
     expect(themesOf("chocolate scent")).not.toHaveProperty("delivery_speed"); // "late" inside "chocolate"
   });
 
+  it("tags quality, ease of use, fabric care and eco themes (taxonomy v2)", () => {
+    expect(themesOf("Good quality, easy to use sa washing machine")).toMatchObject({ quality: "positive", ease_of_use: "positive" });
+    expect(themesOf("Defective, sira agad")).toMatchObject({ quality: "negative" });
+    expect(themesOf("Gentle on clothes and prevents fading")).toMatchObject({ fabric_care: "positive" });
+    expect(themesOf("Kumupas yung kulay ng damit")).toMatchObject({ fabric_care: "negative" });
+    expect(themesOf("Eco-friendly and leaves no residue")).toMatchObject({ eco_friendly: "positive", cleaning_performance: "positive" });
+    expect(themesOf("hassle free gamitin")).toMatchObject({ ease_of_use: "positive" }); // longer phrase wins over "hassle"
+  });
+
+  it("does not tag a product name as a fabric-care comment", () => {
+    expect(themesOf("Bought the fabric conditioner")).not.toHaveProperty("fabric_care");
+  });
+
   it("validates the taxonomy file", () => {
     expect(() => compileTaxonomy(raw)).not.toThrow();
     expect(() => compileTaxonomy({ version: "x", themes: [{ id: "a", label: "A", vector: "Nope", keywords: [], positive: [], negative: [] }] })).toThrow(/vector/);

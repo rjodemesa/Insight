@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { guard } from "@/lib/auth/guard";
 import { describeFilters, FilterError, parseFilters, type Filters } from "@/lib/query/filters";
 import { log } from "@/lib/log";
+import { cached, cacheKey } from "./cache";
 import type Database from "better-sqlite3";
 
 /**
@@ -13,13 +14,16 @@ import type Database from "better-sqlite3";
 export async function readRoute(
   req: NextRequest,
   run: (conn: Database.Database, f: Filters, sp: URLSearchParams) => unknown,
+  opts: { cache?: boolean } = {},
 ): Promise<NextResponse> {
   const auth = await guard(req);
   if (auth instanceof NextResponse) return auth;
   const sp = req.nextUrl.searchParams;
   try {
     const f = parseFilters(sp);
-    const body = run(db(), f, sp);
+    const compute = () => run(db(), f, sp);
+    // Same filters give the same answer for every user, so the cache is shared.
+    const body = opts.cache ? cached(cacheKey(req.nextUrl.pathname, sp), compute) : compute();
     if (body === null) return NextResponse.json({ error: "Not found." }, { status: 404 });
     return NextResponse.json({ filters: describeFilters(f), ...(body as object) }, { headers: { "Cache-Control": "no-store" } });
   } catch (err) {

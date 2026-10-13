@@ -4,5 +4,5 @@ import { readRoute } from "@/lib/insights/route";
 
 /** Brand comparison with Intelligence Scores. */
 export function GET(req: NextRequest) {
-  return readRoute(req, (conn, f) => brands(conn, f));
+  return readRoute(req, (conn, f) => brands(conn, f), { cache: true });
 }

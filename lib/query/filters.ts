@@ -1,4 +1,5 @@
 import { taxonomy, VECTORS } from "@/lib/nlp/taxonomy";
+import { FILTER_KEYS } from "./keys";
 
 /**
  * Shared filters for review, aggregate and product queries. Parsed from the query string
@@ -12,6 +13,8 @@ export interface Filters {
   subcategory: string[];
   brand: string[];
   product: number[];
+  /** Specific review ids (links from feedback and, later, AI citations). */
+  review: number[];
   sentiment: string[]; // positive | neutral | negative | none
   language: string[];
   theme: string[];
@@ -29,6 +32,15 @@ export interface Filters {
 }
 
 export class FilterError extends Error {}
+export { FILTER_KEYS };
+
+/** Only the filter keys of `sp`, validated, in a stable order. Throws FilterError on bad input. */
+export function canonicalFilterQuery(sp: URLSearchParams): string {
+  parseFilters(sp);
+  const out = new URLSearchParams();
+  for (const k of FILTER_KEYS) for (const v of sp.getAll(k)) if (v.trim()) out.append(k, v.trim());
+  return out.toString();
+}
 
 const SENTIMENTS = ["positive", "neutral", "negative", "none"];
 const LANGUAGES = ["english", "filipino", "taglish", "emoji_only", "empty", "other"];
@@ -70,12 +82,15 @@ function bool(sp: URLSearchParams, key: string): boolean | null {
   throw new FilterError(`"${key}" must be true or false.`);
 }
 
-export function parseFilters(sp: URLSearchParams): Filters {
-  const product = strings(sp, "product").map((v) => {
+const ids = (sp: URLSearchParams, key: string, what: string) =>
+  strings(sp, key).map((v) => {
     const n = Number(v);
-    if (!Number.isInteger(n) || n <= 0) throw new FilterError("product must be a product id.");
+    if (!Number.isInteger(n) || n <= 0) throw new FilterError(`${key} must be a ${what} id.`);
     return n;
   });
+
+export function parseFilters(sp: URLSearchParams): Filters {
+  const product = ids(sp, "product", "product");
   const themeSentiment = sp.get("themeSentiment") || null;
   if (themeSentiment && !["positive", "neutral", "negative"].includes(themeSentiment)) {
     throw new FilterError("themeSentiment must be positive, neutral or negative.");
@@ -86,6 +101,7 @@ export function parseFilters(sp: URLSearchParams): Filters {
     subcategory: strings(sp, "subcategory"),
     brand: strings(sp, "brand"),
     product,
+    review: ids(sp, "review", "review"),
     sentiment: strings(sp, "sentiment", SENTIMENTS),
     language: strings(sp, "language", LANGUAGES),
     theme: strings(sp, "theme", taxonomy().themes.map((t) => t.id)),
@@ -127,6 +143,7 @@ export function whereClause(f: Filters, opts: { skipDates?: boolean } = {}): Whe
   inList("r.subcategory", f.subcategory);
   inList("r.brand", f.brand);
   inList("r.product_id", f.product);
+  inList("r.id", f.review);
   inList("r.language", f.language);
   if (f.sentiment.length) {
     const named = f.sentiment.filter((s) => s !== "none");

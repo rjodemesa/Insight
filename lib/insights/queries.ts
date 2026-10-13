@@ -84,8 +84,8 @@ export function summary(conn: Conn, f: Filters) {
     },
     ratingTextConflicts: Number(row.conflicts ?? 0),
     verifiedShare: row.n ? round(Number(row.verified ?? 0) / row.n) : null,
-    products: row.products, brands: row.brands, retailers: row.retailers,
-    dateRange: { from: row.date_from, to: row.date_to },
+    products: Number(row.products ?? 0), brands: Number(row.brands ?? 0), retailers: Number(row.retailers ?? 0),
+    dateRange: { from: row.date_from as string | null, to: row.date_to as string | null },
     // The whole set has nothing to shrink toward, so its score is the raw score.
     intelligenceScore: intelligenceScore(toInputs(row), null),
     provenance: {
@@ -421,7 +421,7 @@ export function filterOptions(conn: Conn) {
   const distinct = (col: string) =>
     conn
       .prepare(`SELECT ${col} AS value, COUNT(*) AS reviews FROM reviews r WHERE r.is_duplicate = 0 AND ${col} IS NOT NULL GROUP BY ${col} ORDER BY reviews DESC LIMIT 500`)
-      .all();
+      .all() as { value: string; reviews: number }[];
   const range = conn
     .prepare("SELECT MIN(review_date_iso) AS from_, MAX(review_date_iso) AS to_ FROM reviews WHERE is_duplicate = 0")
     .get() as { from_: string | null; to_: string | null };

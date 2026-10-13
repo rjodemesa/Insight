@@ -1,11 +1,11 @@
 {
   "$comment": "Theme taxonomy for rule-based tagging. Each theme belongs to one of the Five Vectors. Keywords are matched on whole words in the redacted review title and text; a trailing * matches any ending (leak* = leak, leaks, leaking). Words under 'negative' or 'positive' fix the theme's sentiment for that mention (a negator such as 'no' or 'walang' flips it); words under 'keywords' take the sentiment of their sentence. Bump 'version' when you change this file, then run `npm run reprocess`.",
-  "version": "1",
+  "version": "2",
   "themes": [
     {
       "id": "scent", "label": "Scent", "vector": "Product",
-      "keywords": ["scent*", "smell*", "fragrance", "fragrant", "amoy", "naamoy", "aroma"],
-      "positive": ["bango", "mabango", "napakabango", "ang bango", "smells good", "smells great", "smell good", "smells nice"],
+      "keywords": ["scent*", "smell*", "fragrance", "fragrant", "amoy", "naamoy", "aroma", "fresh", "freshness", "refreshing"],
+      "positive": ["bango", "mabango", "napakabango", "ang bango", "smells good", "smells great", "smell good", "smells nice", "smells fresh", "fresh scent", "fresh smell"],
       "negative": ["baho", "mabaho", "stinks", "stinky", "smelly", "masakit sa ilong", "too strong", "sobrang tapang"]
     },
     {
@@ -16,9 +16,15 @@
     },
     {
       "id": "cleaning_performance", "label": "Cleaning performance", "vector": "Product",
-      "keywords": ["clean*", "linis", "malinis", "nilinis", "stain*", "mantsa", "dumi", "whiten*", "puti", "pumuti", "maputi", "tanggal"],
-      "positive": ["natanggal", "removes stains", "very effective", "effective", "epektib"],
-      "negative": ["hindi natanggal", "di natanggal", "not effective", "ineffective", "di umeepekto", "walang epekto"]
+      "keywords": ["clean*", "linis", "malinis", "nilinis", "stain*", "mantsa", "dumi", "whiten*", "puti", "pumuti", "maputi", "tanggal", "residue*", "banlaw*", "rinse*", "antibacterial", "anti-bacterial", "germ*", "bacteria", "disinfect*", "sanitiz*"],
+      "positive": ["natanggal", "removes stains", "very effective", "effective", "epektib", "no residue", "leaves no residue", "walang residue", "kills germs", "madaling banlawan"],
+      "negative": ["hindi natanggal", "di natanggal", "not effective", "ineffective", "di umeepekto", "walang epekto", "may residue", "white residue", "maraming residue", "hirap banlawan", "mahirap banlawan"]
+    },
+    {
+      "id": "fabric_care", "label": "Fabric and colour care", "vector": "Product",
+      "keywords": ["fabric care", "colour protection", "color protection", "colorfast", "colourfast"],
+      "positive": ["prevents fading", "prevent fading", "gentle on clothes", "gentle on fabrics", "gentle on fabric", "gentle sa damit", "keeps clothes", "clothes bright", "colors bright", "vibrant", "hindi kumukupas", "di kumukupas"],
+      "negative": ["kupas", "kumupas", "kumukupas", "faded", "fading", "fades", "nawala ang kulay", "pilling", "nanipis", "damaged my clothes", "sinira ang damit"]
     },
     {
       "id": "softness", "label": "Softness", "vector": "Product",
@@ -40,9 +46,27 @@
     },
     {
       "id": "lather", "label": "Lather and foam", "vector": "Product",
-      "keywords": ["bula", "bumubula", "foam*", "lather*", "suds", "sudsy"],
+      "keywords": ["bula", "bumubula", "foam*", "lather*", "suds", "sudsy", "mabula", "bumula", "foamy"],
       "positive": [],
       "negative": ["walang bula", "no foam", "no lather", "konti bula"]
+    },
+    {
+      "id": "quality", "label": "Quality and defects", "vector": "Product",
+      "keywords": ["quality", "kalidad", "material"],
+      "positive": ["high quality", "good quality", "great quality", "premium", "durable", "matibay", "sharp"],
+      "negative": ["defective", "defect*", "low quality", "poor quality", "bad quality", "substandard", "sira agad", "madaling masira", "dull", "mapurol"]
+    },
+    {
+      "id": "ease_of_use", "label": "Ease of use", "vector": "Product",
+      "keywords": ["washing machine*", "machine wash", "hand wash", "handwash", "front load", "top load", "dosage"],
+      "positive": ["easy to use", "easy use", "convenient", "madaling gamitin", "madali gamitin", "user friendly", "user-friendly", "hassle free", "hassle-free"],
+      "negative": ["hard to use", "mahirap gamitin", "inconvenient", "complicated", "hassle"]
+    },
+    {
+      "id": "eco_friendly", "label": "Eco-friendliness", "vector": "Product",
+      "keywords": ["eco", "environment*", "biodegradable", "sustainab*", "plastic-free", "plastic free", "recyclable"],
+      "positive": ["eco friendly", "eco-friendly", "environment friendly", "environmentally friendly"],
+      "negative": []
     },
     {
       "id": "leak", "label": "Leaks and spills", "vector": "Packaging",
@@ -52,8 +76,8 @@
     },
     {
       "id": "damaged_packaging", "label": "Packaging condition", "vector": "Packaging",
-      "keywords": ["packaging", "package", "parcel"],
-      "positive": ["well packed", "well-packed", "maayos ang pagkaka-pack", "secure packaging", "bubble wrap", "intact", "no damage", "no damages", "walang damage", "walang sira"],
+      "keywords": ["packaging", "package", "parcel", "packed", "pagkakabalot", "nakabalot", "balot"],
+      "positive": ["well packed", "well-packed", "maayos ang pagkaka-pack", "secure packaging", "bubble wrap", "intact", "no damage", "no damages", "walang damage", "walang sira", "good condition", "in good condition", "maayos na dumating", "dumating ng maayos", "dumating nang maayos", "packed well", "securely packed", "nicely packed", "good packaging"],
       "negative": ["sira", "nasira", "basag", "nabasag", "broken", "damaged", "dented", "yupi", "nayupi", "crushed", "durog", "punit", "torn"]
     },
     {
@@ -94,9 +118,9 @@
     },
     {
       "id": "seller_service", "label": "Seller and courier service", "vector": "Retail Execution",
-      "keywords": ["seller", "customer service", "rider", "courier", "kuya rider"],
-      "positive": ["legit seller", "trusted seller", "responsive seller", "accommodating", "mabait"],
-      "negative": ["rude", "bastos", "unresponsive", "di sumasagot", "hindi sumasagot", "no reply", "walang reply"]
+      "keywords": ["seller", "customer service", "rider", "courier", "kuya rider", "service", "serbisyo"],
+      "positive": ["legit seller", "trusted seller", "responsive seller", "accommodating", "mabait", "good service", "great service", "excellent service", "fast response", "responsive"],
+      "negative": ["rude", "bastos", "unresponsive", "di sumasagot", "hindi sumasagot", "no reply", "walang reply", "bad service", "poor service", "slow response"]
     },
     {
       "id": "wrong_missing_item", "label": "Wrong or missing item", "vector": "Retail Execution",

@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { appendAudit } from "@/lib/audit";
 import { piiVaultKey } from "@/lib/env";
 import { log } from "@/lib/log";
+import { bumpDataVersion } from "@/lib/insights/cache";
 import { IngestCancelled, IngestError, runIngest } from "./pipeline";
 import type { SourceKind } from "./readers";
 
@@ -86,6 +87,8 @@ async function runOne(job: QueuedJob) {
       log("error", "ingest_failed", { jobId: job.jobId, error: err instanceof Error ? err.message.slice(0, 200) : "unknown" });
     }
   } finally {
+    // Even a cancelled or failed import may have written rows.
+    bumpDataVersion();
     fs.rm(job.path, { force: true }, () => {});
   }
 }

@@ -1,9 +1,14 @@
-import Placeholder from "@/components/Placeholder";
+import { Suspense } from "react";
+import Dashboard from "@/components/dashboard/Dashboard";
 
 export default function Page() {
   return (
-    <Placeholder title="Dashboard" phase={3}>
-      <p>KPI tiles, sentiment trend, top themes, retailer comparison, Five Vectors view and an AI summary card.</p>
-    </Placeholder>
+    <div className="space-y-4">
+      <h1 className="text-2xl font-semibold">Dashboard</h1>
+      {/* Filters are read from the URL, which needs a Suspense boundary. */}
+      <Suspense>
+        <Dashboard />
+      </Suspense>
+    </div>
   );
 }

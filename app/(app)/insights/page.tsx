@@ -1,9 +1,13 @@
-import Placeholder from "@/components/Placeholder";
+import { Suspense } from "react";
+import InsightsWorkspace from "@/components/insights/InsightsWorkspace";
 
 export default function Page() {
   return (
-    <Placeholder title="Insights" phase={3}>
-      <p>Theme explorer, product and brand pages with the Intelligence Score, and the redacted review viewer.</p>
-    </Placeholder>
+    <div className="space-y-4">
+      <h1 className="text-2xl font-semibold">Insights</h1>
+      <Suspense>
+        <InsightsWorkspace />
+      </Suspense>
+    </div>
   );
 }

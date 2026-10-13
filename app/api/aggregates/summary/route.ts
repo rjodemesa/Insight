@@ -4,5 +4,5 @@ import { readRoute } from "@/lib/insights/route";
 
 /** KPI totals for the filtered reviews, with the Intelligence Score of the whole set. */
 export function GET(req: NextRequest) {
-  return readRoute(req, (conn, f) => summary(conn, f));
+  return readRoute(req, (conn, f) => summary(conn, f), { cache: true });
 }
