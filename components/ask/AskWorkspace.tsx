@@ -41,7 +41,10 @@ export default function AskWorkspace() {
   const [busy, setBusy] = useState(false);
   const end = useRef<HTMLDivElement>(null);
 
-  useEffect(() => end.current?.scrollIntoView({ behavior: "smooth", block: "end" }), [turns.length, busy]);
+  // Braces matter: newer browsers return a Promise from smooth scrollIntoView, and an effect may only return a clean-up function.
+  useEffect(() => {
+    end.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [turns.length, busy]);
 
   async function send(q: string) {
     const text = q.trim();
