@@ -120,7 +120,7 @@ export default function Dashboard() {
               { label: "Data-quality score", text: ops.data.method.qualityScore },
               { label: "Analyst hours saved (ESTIMATED)", text: ops.data.method.hoursSaved },
             ] : []),
-            { label: "Sentiment", text: "Rule-based lexicon for English, Filipino and Taglish with negation, intensifiers, slang and emoji, with the star rating as a weak prior. Reviews without text are counted in ratings but not in sentiment or themes." },
+            { label: "Sentiment", text: "Rule-based lexicon for English, Filipino and Taglish with negation, intensifiers, slang and emoji. Star ratings are not used, so they can serve as an independent check. Labels a person verified on the Data tab replace the automatic ones. Reviews without text, or marked unreadable, are counted in ratings but not in sentiment or themes." },
           ]}
         />
       )}

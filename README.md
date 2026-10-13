@@ -69,6 +69,19 @@ Rule-based tagging has limits. Sarcasm, and complaints phrased without a sentime
 - **Provenance**: every number carries OBSERVED, DERIVED or ESTIMATED; hover for the definition. "How is this calculated?" panels show the formulas from the code.
 - **Dashboard**: headline tiles, Key findings, sentiment over time, top themes, issues by Five Vectors, retailer comparison and brand ranking. Key findings are written by fixed rules from the numbers on the page; **Write summary** beside them asks the AI for a summary grounded in the same facts. Approved alerts show at the top. *Analyst hours saved* is ESTIMATED from an editable minutes-per-review assumption (default 1.5); changes are audited.
 - **Insights**: a theme explorer grouped by vector, product and brand rankings, product and brand pages with a score breakdown, and the review viewer. Under each review, **Is a tag wrong?** and **Missed personal info?** record feedback. Feedback does not change data; it is listed on the Data tab for whoever updates the taxonomy or redaction rules.
+- **Data** is four steps: **1 Import** (upload, quality report, history), **2 Verify reviews**, **3 Product mapping** and **4 Feedback**.
+- **Data → Verify reviews**: the reviews the tagger is unsure about, for a person to confirm or correct (Positive, Neutral, Negative, or Unreadable/spam). A verdict replaces the automatic label in every chart, export and AI answer, is kept when the data is re-tagged, is audited, and can be undone. What to include:
+  - **Confidence below** a threshold (slider). At 30%, only reviews where the tagger found no sentiment words.
+  - **Mixed or weak wording**: sentiment words that cancel out, at any confidence.
+  - **Stars disagree with text**.
+
+  **Truly uncertain** (the default) ticks all three at 30%: 11,593 reviews on the current data. **Everything below 75%** is 22,871 (41% of reviews with text). The **How reliable is the automatic label?** chart shows, per confidence band, how often the label contradicts the star rating. The tagger never reads the stars, so this is an independent check. Mistakes cluster where wording is mixed (about 1 in 8 contradict the stars below a strength of 0.35, against under 3 in 100 above it) rather than simply at low confidence. Unreadable reviews leave sentiment, like reviews without text, but still count toward ratings.
+- **Rating filter** (above every review list and in Verify reviews): the average rating, a bar per star, and Lazada/Shopee-style chips for All, 5★ to 1★, **With comments** and **With photos**, each with its count.
+- **Insights → Brands → Brand comparison** treats all brands as one portfolio:
+  - each brand's reviews, **visibility** (its share of all reviews), average rating, star mix and 1–2★ share;
+  - **overperformers** and **underperformers**: at least 0.05★ from the average of all other brands and statistically significant (Welch z-test). Each brand is assumed to vary at least as much as the portfolio, so a small all-5★ brand is not over-certain. Brands with under 30 ratings aren't judged.
+
+  The Intelligence Score ranking follows below.
 - **Data → Product mapping review**: products with the weakest name matches come first. Tick products to **merge** them, or open one to **split** listing names off into a new product. Both are audited, and later imports and reprocessing keep them.
 - **Views ☆**: save the current filters under a name and persona, or start from a built-in view per persona. Views are private to each user.
 - **Export**: every chart and table has an Export link that downloads the filtered data as Excel. Each file includes an *About this export* sheet (filters, who, when, provenance of every column). Text is always the redacted text, for every role, and exports are audited. Review exports stop at 100,000 rows.
@@ -136,11 +149,13 @@ All routes are GET and need a signed-in user. Responses include the active filte
 
 Admin routes (IT officers only; changes need the CSRF header and are audited): GET `/api/admin/health`, `/api/admin/ai`, `/api/admin/pii`, `/api/admin/purge`, `/api/admin/users`; POST `/api/admin/users` `{email, displayName, role}`, PATCH `/api/admin/users/:id` `{role?, disabled?, displayName?}`, POST `/api/admin/users/:id/reset-password`, `/api/admin/pii/reveal` `{reviewId, reason}`, `/api/admin/pii/restore` `{reviewId, tokens, reason}`, `/api/admin/purge` `{target: import, id, confirm}` or `{target: vault, scope: images|all, confirm}`, `/api/admin/ai/test`. Audit: GET `/api/audit` (own entries, or all for IT officers), `/api/audit/verify` and `/api/audit/export` (IT officers).
 
+Verification: GET `/api/verify` (the usual filters plus `threshold` = 0.3–1 or `off`, `mixed`, `disagree`, `sort`, `limit`, `offset`), GET `/api/verify/overview` (reliability by confidence band, recent verdicts), POST `/api/verify` `{reviewId, verdict}`, DELETE `/api/verify/:id` (undo). Also GET `/api/aggregates/ratings` (star breakdown) and `/api/aggregates/brand-comparison`. New filters: `hasText`, `hasPhotos`.
+
 AI routes (POST, CSRF header, audited): `/api/ai/summary` `{query, refresh?}`, `/api/ask` `{question, query, history}`, `/api/alerts/scan`, `/api/alerts/:id/decision` `{decision: approve|dismiss, note}`. `query` is the filter query string. GET `/api/ai/status` returns the provider and model; GET `/api/alerts?status=proposed|approved|dismissed|all` lists alerts.
 
 Changes (all need the CSRF header and are audited): `POST /api/products/merge` `{targetId, sourceIds}`, `POST /api/products/:id/split` `{aliasIds, name?}`, `POST /api/feedback/tag` `{reviewId, theme, suggested, comment}`, `POST /api/feedback/redaction` `{reviewId, note}`, `POST /api/views` `{name, persona, filters}`, `DELETE /api/views/:id`, `PUT /api/settings/estimates` `{minutesPerRecord}`.
 
-Every read route accepts the same filters; repeat a parameter to pass several values. The filters are `retailer`, `category`, `subcategory`, `brand`, `product` (id), `review` (id), `sentiment` (positive, neutral, negative, none), `language`, `theme`, `vector`, `themeSentiment`, `from` and `to` (YYYY-MM-DD, inclusive), `minRating`, `maxRating`, `verified`, `conflict`, `includeDuplicates` and `q` (text search in redacted text). Example: `/api/aggregates/themes?vector=Packaging&retailer=Lazada&from=2024-01-01`.
+Every read route accepts the same filters; repeat a parameter to pass several values. The filters are `retailer`, `category`, `subcategory`, `brand`, `product` (id), `review` (id), `sentiment` (positive, neutral, negative, none), `language`, `theme`, `vector`, `themeSentiment`, `from` and `to` (YYYY-MM-DD, inclusive), `minRating`, `maxRating`, `verified`, `conflict`, `includeDuplicates`, `hasText`, `hasPhotos` and `q` (text search in redacted text). Example: `/api/aggregates/themes?vector=Packaging&retailer=Lazada&from=2024-01-01`.
 
 ## Environment variables
 

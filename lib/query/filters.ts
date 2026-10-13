@@ -29,6 +29,10 @@ export interface Filters {
   conflict: boolean | null;
   includeDuplicates: boolean;
   q: string | null;
+  /** Only reviews with written text ("With comments" on shopping sites). */
+  hasText: boolean | null;
+  /** Only reviews with customer photos ("With media"). */
+  hasPhotos: boolean | null;
 }
 
 export class FilterError extends Error {}
@@ -115,6 +119,8 @@ export function parseFilters(sp: URLSearchParams): Filters {
     conflict: bool(sp, "conflict"),
     includeDuplicates: bool(sp, "includeDuplicates") ?? false,
     q: sp.get("q")?.trim().slice(0, 100) || null,
+    hasText: bool(sp, "hasText"),
+    hasPhotos: bool(sp, "hasPhotos"),
   };
   if (f.from && f.to && f.from > f.to) throw new FilterError('"from" is after "to".');
   return f;
@@ -191,6 +197,8 @@ export function whereClause(f: Filters, opts: { skipDates?: boolean } = {}): Whe
   }
   if (f.verified !== null) parts.push(f.verified ? "r.verified_purchase = 1" : "(r.verified_purchase IS NULL OR r.verified_purchase = 0)");
   if (f.conflict !== null) parts.push(f.conflict ? "r.rating_text_conflict = 1" : "COALESCE(r.rating_text_conflict, 0) = 0");
+  if (f.hasText !== null) parts.push(f.hasText ? "r.review_text <> ''" : "COALESCE(r.review_text, '') = ''");
+  if (f.hasPhotos !== null) parts.push(f.hasPhotos ? "r.customer_image_count > 0" : "r.customer_image_count = 0");
   if (f.q) {
     parts.push("(r.review_text LIKE ? ESCAPE '\\' OR r.review_title LIKE ? ESCAPE '\\')");
     const like = `%${escapeLike(f.q)}%`;

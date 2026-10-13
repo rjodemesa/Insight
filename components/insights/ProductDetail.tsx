@@ -64,7 +64,7 @@ export default function ProductDetail({ id }: { id: number }) {
         <div className="grid gap-4 lg:grid-cols-2">
           <Card title="Listing names mapped here" provenance="DERIVED"
             subtitle="Retailer listings grouped into this product."
-            actions={<Link href={`/data?mapping=${id}`} className="text-xs text-brand underline">Fix mapping</Link>}>
+            actions={<Link href={`/data?section=mapping&mapping=${id}`} className="text-xs text-brand underline">Fix mapping</Link>}>
             <ul className="max-h-64 space-y-1 overflow-auto text-sm">
               {(d.data.aliases as { normalized_name: string; retailer_product_code: string | null; similarity: number | null }[]).map((a, i) => (
                 <li key={i} className="flex gap-2">

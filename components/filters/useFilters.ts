@@ -62,6 +62,20 @@ export function useFilters() {
     [commit, sp],
   );
 
+  /** Change several keys in one navigation (null removes a key). Starts again from the first page. */
+  const update = useCallback(
+    (changes: Record<string, string | null>) => {
+      const next = new URLSearchParams(sp.toString());
+      for (const [k, v] of Object.entries(changes)) {
+        next.delete(k);
+        if (v) next.set(k, v);
+      }
+      next.delete("offset");
+      commit(next);
+    },
+    [commit, sp],
+  );
+
   /** Replace every filter at once (saved views), keeping non-filter params such as `view`. */
   const replaceAll = useCallback(
     (filters: string) => {
@@ -80,6 +94,7 @@ export function useFilters() {
     get: (k: string) => sp.get(k),
     getAll: (k: string) => sp.getAll(k),
     set,
+    update,
     replaceAll,
     clear: () => replaceAll(""),
   };

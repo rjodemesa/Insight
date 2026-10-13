@@ -375,28 +375,46 @@ export interface ReviewRow {
   images: number; trustWeight: number | null; redactions: number; duplicate: number; tagSource: string | null;
   /** The AI's second opinion on sentiment, when the review has been AI-tagged. */
   aiSentiment: string | null;
+  /** Set when a person verified the sentiment on the Data tab. */
+  verifiedAt: string | null;
+  /** 1 when a person marked the text unreadable or spam. */
+  unclear: number;
 }
+
+/** Columns behind ReviewRow, over `reviews r LEFT JOIN products p`. Redacted text only. */
+export const REVIEW_COLUMNS = `r.id, r.retailer_name AS retailer, r.product_id AS productId, p.canonical_name AS product,
+  r.product_name AS listingName, r.brand, r.category, r.subcategory,
+  r.review_date_iso AS date, r.review_rating AS rating, r.review_title AS title, r.review_text AS text,
+  r.language, r.sentiment, r.sentiment_score AS sentimentScore, r.confidence,
+  r.rating_text_conflict AS ratingTextConflict, r.verified_purchase AS verified,
+  r.helpful_review_count AS helpful, r.customer_image_count AS images, r.trust_weight AS trustWeight,
+  r.redaction_count AS redactions, r.is_duplicate AS duplicate, r.tag_source AS tagSource,
+  r.ai_sentiment AS aiSentiment, r.verified_at AS verifiedAt, r.unclear`;
 
 /** Redacted reviews with their tags. Never returns review URLs or vault contents. */
 export function listReviews(conn: Conn, f: Filters, opts: { sort: ReviewSort; limit: number; offset: number }) {
   const w = whereClause(f);
   const total = conn.prepare(`SELECT COUNT(*) FROM reviews r WHERE ${w.sql}`).pluck().get(...w.params) as number;
   const rows = conn
-    .prepare(
-      `SELECT r.id, r.retailer_name AS retailer, r.product_id AS productId, p.canonical_name AS product,
-         r.product_name AS listingName, r.brand, r.category, r.subcategory,
-         r.review_date_iso AS date, r.review_rating AS rating, r.review_title AS title, r.review_text AS text,
-         r.language, r.sentiment, r.sentiment_score AS sentimentScore, r.confidence,
-         r.rating_text_conflict AS ratingTextConflict, r.verified_purchase AS verified,
-         r.helpful_review_count AS helpful, r.customer_image_count AS images, r.trust_weight AS trustWeight,
-         r.redaction_count AS redactions, r.is_duplicate AS duplicate, r.tag_source AS tagSource,
-         r.ai_sentiment AS aiSentiment
-       FROM reviews r LEFT JOIN products p ON p.id = r.product_id
-       WHERE ${w.sql} ORDER BY ${ORDER[opts.sort]} LIMIT ? OFFSET ?`,
-    )
+    .prepare(`SELECT ${REVIEW_COLUMNS} FROM reviews r LEFT JOIN products p ON p.id = r.product_id
+       WHERE ${w.sql} ORDER BY ${ORDER[opts.sort]} LIMIT ? OFFSET ?`)
     .all(...w.params, opts.limit, opts.offset) as ReviewRow[];
+  return {
+    total,
+    limit: opts.limit,
+    offset: opts.offset,
+    reviews: withThemes(conn, rows),
+    provenance: { text: "OBSERVED", rating: "OBSERVED", sentiment: "DERIVED", themes: "DERIVED", trustWeight: "DERIVED" } satisfies Record<string, Provenance>,
+    note: "Text is redacted: personal data is replaced by tokens such as [PHONE_001].",
+  };
+}
+
+export interface ThemeTagRow { theme: string; label: string; vector: string; sentiment: string | null; confidence: number | null; source: string }
+
+/** Attaches each review's theme tags. */
+export function withThemes<T extends { id: number }>(conn: Conn, rows: T[]): (T & { themes: ThemeTagRow[] })[] {
   const ids = rows.map((r) => r.id);
-  const tags = new Map<number, unknown[]>();
+  const tags = new Map<number, ThemeTagRow[]>();
   if (ids.length) {
     const tax = taxonomy();
     const themeRows = conn
@@ -408,14 +426,7 @@ export function listReviews(conn: Conn, f: Filters, opts: { sort: ReviewSort; li
       tags.set(t.review_id, list);
     }
   }
-  return {
-    total,
-    limit: opts.limit,
-    offset: opts.offset,
-    reviews: rows.map((r) => ({ ...r, themes: tags.get(r.id) ?? [] })),
-    provenance: { text: "OBSERVED", rating: "OBSERVED", sentiment: "DERIVED", themes: "DERIVED", trustWeight: "DERIVED" } satisfies Record<string, Provenance>,
-    note: "Text is redacted: personal data is replaced by tokens such as [PHONE_001].",
-  };
+  return rows.map((r) => ({ ...r, themes: tags.get(r.id) ?? [] }));
 }
 
 // ---------------------------------------------------------------- filter options

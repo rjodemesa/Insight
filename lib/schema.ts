@@ -216,4 +216,12 @@ export const MIGRATIONS: string[] = [
   ALTER TABLE alerts ADD COLUMN decision_note TEXT;
   CREATE INDEX idx_alerts_key ON alerts(dedupe_key);
   `,
+  /* v5 — human verification of uncertain reviews */ `
+  ALTER TABLE reviews ADD COLUMN human_sentiment TEXT CHECK (human_sentiment IN ('positive','neutral','negative'));
+  ALTER TABLE reviews ADD COLUMN unclear INTEGER NOT NULL DEFAULT 0;
+  ALTER TABLE reviews ADD COLUMN verified_by INTEGER REFERENCES users(id);
+  ALTER TABLE reviews ADD COLUMN verified_at TEXT;
+  CREATE INDEX idx_reviews_confidence ON reviews(confidence);
+  CREATE INDEX idx_reviews_verified ON reviews(verified_at);
+  `,
 ];

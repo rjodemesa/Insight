@@ -11,6 +11,7 @@ import ThemeBars from "@/components/charts/ThemeBars";
 import MethodPanel from "@/components/ui/MethodPanel";
 import ReviewViewer from "./ReviewViewer";
 import ThemeExplorer from "./ThemeExplorer";
+import BrandComparison from "./BrandComparison";
 
 type Themes = ReturnType<typeof themes>;
 type Products = ReturnType<typeof products>;
@@ -93,6 +94,8 @@ function BrandsView({ query }: { query: string }) {
   const b = useJson<Brands>(`/api/aggregates/brands${withQuery(query)}`);
   return (
     <div className="space-y-3">
+      <BrandComparison query={query} />
+      <h2 className="pt-2 text-lg font-semibold">Ranking by Intelligence Score</h2>
       <RankingTable
         title="Brands"
         subtitle={b.data ? `${num(b.data.brands.length)} brands. Scores shrink toward ${b.data.prior ?? "–"}, the score of everything in the filter.` : undefined}

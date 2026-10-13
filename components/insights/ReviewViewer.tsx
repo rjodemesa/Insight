@@ -10,6 +10,7 @@ import { useJson } from "@/components/ui/useJson";
 import { ExportLink } from "@/components/charts/common";
 import ProvenanceBadge from "@/components/ProvenanceBadge";
 import ReviewFeedback from "./ReviewFeedback";
+import RatingFilter from "@/components/filters/RatingFilter";
 
 interface Tag {
   theme: string;
@@ -50,42 +51,45 @@ export default function ReviewViewer({ extra = "", title = "Reviews" }: { extra?
   const pageNo = Math.floor(offset / PAGE) + 1;
 
   return (
-    <Card
-      title={title}
-      provenance="OBSERVED"
-      subtitle={data ? `${num(data.total)} reviews. ${data.note}` : undefined}
-      loading={loading}
-      error={error}
-      empty={data && !data.total ? "No reviews match these filters." : null}
-      actions={
-        <>
-          <label className="flex items-center gap-1 text-xs">
-            Sort
-            <select value={sort} onChange={(e) => { f.set("sort", e.target.value); }} className="rounded border border-line px-1 py-0.5">
-              {SORTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-            </select>
-          </label>
-          <ExportLink kind="reviews" query={scope} />
-        </>
-      }
-    >
-      {data && (
-        <>
-          <ol className="divide-y divide-line">
-            {data.reviews.map((r) => <ReviewItem key={r.id} r={r} />)}
-          </ol>
-          {pages > 1 && (
-            <nav aria-label="Pages" className="mt-3 flex items-center justify-between text-sm">
-              <button type="button" disabled={offset === 0} onClick={() => f.set("offset", String(Math.max(0, offset - PAGE)))}
-                className="rounded border border-line px-3 py-1 disabled:opacity-40">← Previous</button>
-              <span className="text-ink-muted">Page {num(pageNo)} of {num(pages)}</span>
-              <button type="button" disabled={pageNo >= pages} onClick={() => f.set("offset", String(offset + PAGE))}
-                className="rounded border border-line px-3 py-1 disabled:opacity-40">Next →</button>
-            </nav>
-          )}
-        </>
-      )}
-    </Card>
+    <div className="space-y-3">
+      <RatingFilter />
+      <Card
+        title={title}
+        provenance="OBSERVED"
+        subtitle={data ? `${num(data.total)} reviews. ${data.note}` : undefined}
+        loading={loading}
+        error={error}
+        empty={data && !data.total ? "No reviews match these filters." : null}
+        actions={
+          <>
+            <label className="flex items-center gap-1 text-xs">
+              Sort
+              <select value={sort} onChange={(e) => { f.set("sort", e.target.value); }} className="rounded border border-line px-1 py-0.5">
+                {SORTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+              </select>
+            </label>
+            <ExportLink kind="reviews" query={scope} />
+          </>
+        }
+      >
+        {data && (
+          <>
+            <ol className="divide-y divide-line">
+              {data.reviews.map((r) => <ReviewItem key={r.id} r={r} />)}
+            </ol>
+            {pages > 1 && (
+              <nav aria-label="Pages" className="mt-3 flex items-center justify-between text-sm">
+                <button type="button" disabled={offset === 0} onClick={() => f.set("offset", String(Math.max(0, offset - PAGE)))}
+                  className="rounded border border-line px-3 py-1 disabled:opacity-40">← Previous</button>
+                <span className="text-ink-muted">Page {num(pageNo)} of {num(pages)}</span>
+                <button type="button" disabled={pageNo >= pages} onClick={() => f.set("offset", String(offset + PAGE))}
+                  className="rounded border border-line px-3 py-1 disabled:opacity-40">Next →</button>
+              </nav>
+            )}
+          </>
+        )}
+      </Card>
+    </div>
   );
 }
 
@@ -129,6 +133,11 @@ function ReviewItem({ r }: { r: Review }) {
           <span className={`rounded-full border px-2 py-0.5 ${SENTIMENT_STYLE[r.sentiment] ?? ""}`}
             title={`Score ${r.sentimentScore?.toFixed(2) ?? "–"} (−1 to 1), confidence ${r.confidence?.toFixed(2) ?? "–"}`}>
             {r.sentiment}
+          </span>
+        )}
+        {r.verifiedAt && (
+          <span className="rounded-full border border-positive px-2 py-0.5 text-positive" title="A person checked this label on the Data tab; it replaces the automatic one.">
+            {r.unclear ? "verified unreadable" : "verified by a person"}
           </span>
         )}
         {r.aiSentiment && r.aiSentiment !== r.sentiment && (

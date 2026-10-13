@@ -155,6 +155,8 @@ function ActiveFilters({ opts }: { opts: FilterOptions | null }) {
       : key === "product" ? `product #${value}`
       : key === "review" ? `review #${value}`
       : key === "includeDuplicates" ? "including duplicates"
+      : key === "hasText" ? (value === "true" ? "with comments" : "without comments")
+      : key === "hasPhotos" ? (value === "true" ? "with photos" : "without photos")
       : value;
     chips.push({ key, value, label });
   }
