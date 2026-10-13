@@ -261,3 +261,17 @@ describe("agent", () => {
     expect(approved.decidedBy).toBe("a@x");
   });
 });
+
+describe("prepared answers", () => {
+  it("cover each sample question once, with caveats and a way to the reviews", async () => {
+    const { PREPARED_ANSWERS, preparedAnswerFor } = await import("@/lib/ai/preparedAnswers");
+    expect(new Set(PREPARED_ANSWERS.map((a) => a.question)).size).toBe(PREPARED_ANSWERS.length);
+    for (const a of PREPARED_ANSWERS) {
+      expect(a.headline && a.paragraphs.length && a.caveats.length).toBeTruthy();
+      expect(Object.keys(a.drill).length).toBeGreaterThan(0);
+      // Drill links must be filters the review viewer accepts.
+      expect(() => parseFilters(new URLSearchParams(a.drill))).not.toThrow();
+    }
+    expect(preparedAnswerFor("  Are leak complaints getting worse? ")?.drill.theme).toBe("leak");
+  });
+});
