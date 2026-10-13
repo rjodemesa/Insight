@@ -1,6 +1,10 @@
 import type Database from "better-sqlite3";
 import { appendAudit } from "@/lib/audit";
+import { mapProducts } from "@/lib/mapping/products";
+import { analyzeReview, nlpVersion } from "@/lib/nlp/analyze";
 import { detectLanguage } from "@/lib/nlp/language";
+import { prepareAnalysisWriter } from "@/lib/nlp/store";
+import { trustWeight } from "@/lib/score/trust";
 import { RecordRedactor } from "@/lib/redact/redact";
 import { prepareVaultInsert } from "@/lib/redact/vault";
 import type { PiiKind } from "@/lib/redact/rules";
@@ -10,7 +14,8 @@ import { QualityAccumulator, type QualityReport } from "./quality";
 import { readSource, type SourceKind } from "./readers";
 
 /**
- * Ingest pipeline: stream rows → clean/validate → redact (vault originals) → store.
+ * Ingest pipeline: stream rows → clean/validate → redact (vault originals) → tag
+ * (sentiment, themes, trust weight; on redacted text) → store → map products.
  * Runs in batches inside transactions and yields to the event loop between batches,
  * so the server stays responsive during a 75k-row import.
  */
@@ -36,7 +41,7 @@ export async function runIngest(conn: Database.Database, input: IngestInput): Pr
   );
   const isCancelled = conn.prepare("SELECT cancel_requested FROM ingest_jobs WHERE id = ?").pluck();
   const dupInDb = conn
-    .prepare("SELECT 1 FROM reviews WHERE retailer_review_id = ? AND ingest_id <> ? AND is_duplicate = 0 LIMIT 1")
+    .prepare("SELECT 1 FROM reviews INDEXED BY idx_reviews_retailer_id WHERE retailer_review_id = ? AND ingest_id <> ? AND is_duplicate = 0 LIMIT 1")
     .pluck();
   const insertReview = conn.prepare(`INSERT INTO reviews (
       ingest_id, retailer_name, market, site, product_name, category, subcategory, brand,
@@ -50,6 +55,8 @@ export async function runIngest(conn: Database.Database, input: IngestInput): Pr
       @parentOrChild, @reviewUrl, @reviewType, @verifiedPurchase, @helpfulReviewCount,
       @customerImageCount, @isDuplicate, @language, @redactionCount)`);
   const vaultInsert = prepareVaultInsert(conn);
+  const writeAnalysis = prepareAnalysisWriter(conn);
+  const version = nlpVersion();
 
   const quality = new QualityAccumulator();
   const seen = new Set<string>();
@@ -85,8 +92,15 @@ export async function runIngest(conn: Database.Database, input: IngestInput): Pr
         language,
         redactionCount: textItems.length,
       });
-      vaultInsert(input.vaultKey, Number(info.lastInsertRowid), redactor.items);
-      quality.add(row, issues, { duplicate, language, redactions: textItems.map((i) => i.kind as PiiKind) });
+      const reviewId = Number(info.lastInsertRowid);
+      vaultInsert(input.vaultKey, reviewId, redactor.items);
+      const analysis = analyzeReview({ title: redacted.reviewTitle, text: redacted.reviewText, rating: row.reviewRating });
+      const trust = trustWeight({
+        isDuplicate: duplicate, verifiedPurchase: row.verifiedPurchase,
+        textLength: redacted.reviewText?.length ?? 0, helpfulCount: row.helpfulReviewCount,
+      });
+      writeAnalysis(reviewId, analysis, trust, version, true);
+      quality.add(row, issues, { duplicate, language, redactions: textItems.map((i) => i.kind as PiiKind), analysis });
       processed++;
     }
   });
@@ -124,9 +138,19 @@ export async function runIngest(conn: Database.Database, input: IngestInput): Pr
       );
     }
     if (processed === 0) throw new IngestError("The file has a valid header but no data rows.");
+
+    setJob.run("running", "mapping", 1, processed, jobId);
+    const mapping = await mapProducts(conn, jobId, {
+      checkCancel: () => {
+        if (isCancelled.get(jobId) === 1) throw new IngestCancelled();
+      },
+    });
+    quality.setMapping(mapping);
   } catch (err) {
-    // Remove partial rows; vault entries cascade.
+    // Remove partial rows; vault entries and themes cascade. Products created by this
+    // import that no review points to any more are removed too.
     conn.prepare("DELETE FROM reviews WHERE ingest_id = ?").run(jobId);
+    conn.prepare("DELETE FROM products WHERE id NOT IN (SELECT product_id FROM reviews WHERE product_id IS NOT NULL)").run();
     throw err;
   }
 

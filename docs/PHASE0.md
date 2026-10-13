@@ -9,8 +9,8 @@ app/
   (app)/layout.tsx (session gate + nav) ✓
   (app)/dashboard|data|insights|ask|alerts|audit|admin/page.tsx ✓ placeholders
   api/auth/login|logout|me|change-password ✓   api/health ✓
-  api/ingest/*           Phase 1  upload, job status, cancel, quality report
-  api/reviews, api/aggregates/*, api/products/*   Phase 2–3
+  api/ingest/* ✓         Phase 1  upload, job status, cancel, quality report
+  api/reviews ✓  api/aggregates/* ✓  api/products/* ✓ (read)   Phase 2; product merge/split Phase 3
   api/export, api/views  Phase 3
   api/ask, api/alerts/*  Phase 4
   api/audit, api/admin/* Phase 5
@@ -18,11 +18,11 @@ components/ AppNav.tsx ✓  Placeholder.tsx ✓  (charts, filters, Provenance ba
 lib/
   db.ts, schema.ts (migrations) ✓   audit.ts (hash chain) ✓   env.ts ✓   theme.ts ✓
   auth/ session.ts, guard.ts, password.ts, rateLimit.ts ✓
-  ingest/ (streaming xlsx, validation)  redact/ (rules, vault)       Phase 1
-  nlp/ (language, sentiment, taxonomy)  mapping/  score/  trend/     Phase 2
+  ingest/ ✓ (streaming xlsx, validation)  redact/ ✓ (rules, vault)   Phase 1
+  nlp/ ✓ (language, sentiment, taxonomy, reprocess)  mapping/ ✓  score/ ✓  trend/ ✓  query/ ✓  insights/ ✓   Phase 2
   ai.ts (AIProvider: mock | watsonx | gemini), agent/                Phase 4
-config/ taxonomy.json, lexicon.*.json     Phase 2
-fixtures/ sample_reviews.xlsx (200 synthetic rows)  Phase 1
+config/ taxonomy.json ✓  lexicon.en|fil|emoji.json ✓     Phase 2
+fixtures/ sample_reviews.xlsx (200 synthetic rows) ✓  Phase 1
 scripts/ setup-env.mjs ✓  seed.ts ✓
 tests/ audit.test.ts ✓  auth.test.ts ✓
 middleware.ts ✓  public/brand/logo.svg ✓ (placeholder)
@@ -53,8 +53,9 @@ middleware.ts ✓  public/brand/logo.svg ✓ (placeholder)
 | /api/auth/logout, /api/auth/change-password | POST | signed in + CSRF | 0 ✓ |
 | /api/auth/me | GET | signed in | 0 ✓ |
 | /api/health | GET | public status; details for IT officers | 0 ✓ |
-| /api/ingest (upload), /api/ingest/:id, /api/ingest/:id/cancel | POST/GET/POST | user | 1 |
-| /api/reviews, /api/aggregates/*, /api/products/* (merge, split) | GET/POST | user | 2–3 |
+| /api/ingest (upload), /api/ingest/:id, /api/ingest/:id/cancel | POST/GET/POST | user | 1 ✓ |
+| /api/reviews, /api/aggregates/summary, trend, themes, retailers, brands, filters, /api/products, /api/products/:id | GET | user | 2 ✓ |
+| /api/products/* (merge, split) | POST | user | 3 |
 | /api/feedback/tag, /api/feedback/redaction | POST | user | 3 |
 | /api/export, /api/views | POST/GET | user | 3 |
 | /api/ask, /api/alerts, /api/alerts/:id/decision | POST/GET/POST | user | 4 |

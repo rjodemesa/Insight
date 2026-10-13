@@ -1,0 +1,150 @@
+{
+  "$comment": "Theme taxonomy for rule-based tagging. Each theme belongs to one of the Five Vectors. Keywords are matched on whole words in the redacted review title and text; a trailing * matches any ending (leak* = leak, leaks, leaking). Words under 'negative' or 'positive' fix the theme's sentiment for that mention (a negator such as 'no' or 'walang' flips it); words under 'keywords' take the sentiment of their sentence. Bump 'version' when you change this file, then run `npm run reprocess`.",
+  "version": "1",
+  "themes": [
+    {
+      "id": "scent", "label": "Scent", "vector": "Product",
+      "keywords": ["scent*", "smell*", "fragrance", "fragrant", "amoy", "naamoy", "aroma"],
+      "positive": ["bango", "mabango", "napakabango", "ang bango", "smells good", "smells great", "smell good", "smells nice"],
+      "negative": ["baho", "mabaho", "stinks", "stinky", "smelly", "masakit sa ilong", "too strong", "sobrang tapang"]
+    },
+    {
+      "id": "long_lasting", "label": "Long-lasting", "vector": "Product",
+      "keywords": [],
+      "positive": ["long lasting", "long-lasting", "lasts long", "tagal ng bango", "matagal ang bango", "kumakapit", "kapit"],
+      "negative": ["nawawala agad", "mabilis mawala", "doesn't last", "does not last", "fades fast"]
+    },
+    {
+      "id": "cleaning_performance", "label": "Cleaning performance", "vector": "Product",
+      "keywords": ["clean*", "linis", "malinis", "nilinis", "stain*", "mantsa", "dumi", "whiten*", "puti", "pumuti", "maputi", "tanggal"],
+      "positive": ["natanggal", "removes stains", "very effective", "effective", "epektib"],
+      "negative": ["hindi natanggal", "di natanggal", "not effective", "ineffective", "di umeepekto", "walang epekto"]
+    },
+    {
+      "id": "softness", "label": "Softness", "vector": "Product",
+      "keywords": ["soft*", "lambot", "malambot", "lumambot"],
+      "positive": [],
+      "negative": ["matigas", "rough", "stiff"]
+    },
+    {
+      "id": "skin_reaction", "label": "Skin feel and reactions", "vector": "Product",
+      "keywords": ["skin", "balat", "sensitive"],
+      "positive": ["gentle on skin", "gentle sa balat", "hypoallergenic", "hindi makati", "di makati"],
+      "negative": ["itch*", "kati", "makati", "nangati", "rash*", "allerg*", "irritat*", "hapdi", "mahapdi", "burn*", "pantal", "namula"]
+    },
+    {
+      "id": "texture", "label": "Texture and consistency", "vector": "Product",
+      "keywords": ["texture", "consistency", "lapot", "malapot", "thick"],
+      "positive": [],
+      "negative": ["watery", "malabnaw", "labnaw", "diluted", "parang tubig", "tubig lang", "nagbuo", "clumpy", "buo-buo"]
+    },
+    {
+      "id": "lather", "label": "Lather and foam", "vector": "Product",
+      "keywords": ["bula", "bumubula", "foam*", "lather*", "suds", "sudsy"],
+      "positive": [],
+      "negative": ["walang bula", "no foam", "no lather", "konti bula"]
+    },
+    {
+      "id": "leak", "label": "Leaks and spills", "vector": "Packaging",
+      "keywords": [],
+      "positive": ["no leak", "no leaks", "walang tagas", "di tumagas", "hindi tumagas"],
+      "negative": ["leak*", "tagas", "tumagas", "tumatagas", "natapon", "tapon", "spill*", "basa ang box", "basa yung box"]
+    },
+    {
+      "id": "damaged_packaging", "label": "Packaging condition", "vector": "Packaging",
+      "keywords": ["packaging", "package", "parcel"],
+      "positive": ["well packed", "well-packed", "maayos ang pagkaka-pack", "secure packaging", "bubble wrap", "intact", "no damage", "no damages", "walang damage", "walang sira"],
+      "negative": ["sira", "nasira", "basag", "nabasag", "broken", "damaged", "dented", "yupi", "nayupi", "crushed", "durog", "punit", "torn"]
+    },
+    {
+      "id": "cap_seal", "label": "Cap and seal", "vector": "Packaging",
+      "keywords": ["takip", "cap", "lid", "seal*", "selyado", "selyo", "nozzle", "pump"],
+      "positive": ["sealed", "tightly sealed"],
+      "negative": ["walang seal", "no seal", "unsealed", "bukas na", "opened already", "loose cap", "maluwag"]
+    },
+    {
+      "id": "refill_format", "label": "Refill and pack format", "vector": "Packaging",
+      "keywords": ["refill*", "pouch", "sachet*", "tingi", "bottle size"],
+      "positive": [],
+      "negative": []
+    },
+    {
+      "id": "claims_vs_reality", "label": "Claims vs reality", "vector": "Communication",
+      "keywords": ["description", "picture", "litrato", "advertised", "claim*"],
+      "positive": ["as described", "as advertised", "same as picture", "kagaya sa picture", "tulad sa picture"],
+      "negative": ["not as described", "not as advertised", "iba sa picture", "hindi kagaya", "di kagaya", "misleading", "false advertising", "iba sa description"]
+    },
+    {
+      "id": "advertising", "label": "Advertising and influencers", "vector": "Communication",
+      "keywords": ["ad", "ads", "advertisement", "commercial", "tiktok", "influencer", "endorser", "nakita ko sa", "saw it on", "livestream", "live selling"],
+      "positive": [],
+      "negative": []
+    },
+    {
+      "id": "labeling", "label": "Labels and instructions", "vector": "Communication",
+      "keywords": ["label*", "instruction*", "directions", "ingredients", "manufacturing date", "how to use", "paano gamitin"],
+      "positive": [],
+      "negative": ["walang label", "no label", "no instructions", "chinese label"]
+    },
+    {
+      "id": "delivery_speed", "label": "Delivery speed", "vector": "Retail Execution",
+      "keywords": ["delivery", "deliver*", "shipping", "shipped", "dumating", "nadeliver", "padala", "arrived", "arrival"],
+      "positive": ["fast delivery", "fast shipping", "mabilis dumating", "mabilis ang delivery", "bilis dumating", "arrived early", "quick delivery", "on time"],
+      "negative": ["late", "delayed", "delay", "matagal dumating", "tagal dumating", "slow delivery", "not delivered", "hindi dumating", "di dumating", "still not delivered"]
+    },
+    {
+      "id": "seller_service", "label": "Seller and courier service", "vector": "Retail Execution",
+      "keywords": ["seller", "customer service", "rider", "courier", "kuya rider"],
+      "positive": ["legit seller", "trusted seller", "responsive seller", "accommodating", "mabait"],
+      "negative": ["rude", "bastos", "unresponsive", "di sumasagot", "hindi sumasagot", "no reply", "walang reply"]
+    },
+    {
+      "id": "wrong_missing_item", "label": "Wrong or missing item", "vector": "Retail Execution",
+      "keywords": ["variant"],
+      "positive": ["complete", "kumpleto", "kompleto", "correct item", "tama ang item"],
+      "negative": ["wrong item", "wrong variant", "maling item", "mali ang item", "mali yung", "mali ang dinala", "missing", "kulang", "incomplete", "di kumpleto", "hindi kumpleto", "not the same"]
+    },
+    {
+      "id": "authenticity", "label": "Authenticity", "vector": "Retail Execution",
+      "keywords": ["authentic*", "genuine"],
+      "positive": ["100% authentic", "legit"],
+      "negative": ["fake", "peke", "counterfeit", "imitation", "class a", "parang fake", "hindi original", "di original", "not original", "replica"]
+    },
+    {
+      "id": "expiry", "label": "Expiry and freshness", "vector": "Retail Execution",
+      "keywords": ["expir*", "exp date", "expiration", "best before", "manufactured"],
+      "positive": ["long expiry", "malayo pa expiry", "fresh stock"],
+      "negative": ["expired", "malapit na mag expire", "near expiry", "lumang stock", "old stock", "luma"]
+    },
+    {
+      "id": "availability", "label": "Stock and availability", "vector": "Retail Execution",
+      "keywords": ["stock", "available", "availability"],
+      "positive": ["in stock", "may stock"],
+      "negative": ["out of stock", "ubos", "wala nang stock", "walang stock", "hard to find", "mahirap hanapin", "sold out"]
+    },
+    {
+      "id": "price", "label": "Price", "vector": "Value",
+      "keywords": ["price*", "presyo", "halaga", "cost*", "pesos", "php"],
+      "positive": ["mura", "cheap", "affordable", "budget friendly", "budget-friendly", "lower price"],
+      "negative": ["mahal", "expensive", "overpriced", "pricey", "nagmahal", "tumaas ang presyo", "price increase"]
+    },
+    {
+      "id": "value_for_money", "label": "Value for money", "vector": "Value",
+      "keywords": ["value"],
+      "positive": ["sulit", "worth it", "worth", "value for money", "tipid", "matipid", "bang for the buck", "panalo"],
+      "negative": ["not worth", "hindi sulit", "di sulit", "sayang pera", "sayang ang pera", "waste of money", "lugi", "nalugi"]
+    },
+    {
+      "id": "discount_promo", "label": "Discounts and promos", "vector": "Value",
+      "keywords": ["sale", "discount*", "voucher*", "promo*", "freebie*", "free gift", "flash sale", "bundle", "buy 1 take 1", "b1t1", "coins", "cashback", "payday sale", "11.11", "12.12"],
+      "positive": [],
+      "negative": []
+    },
+    {
+      "id": "quantity_size", "label": "Quantity and size", "vector": "Value",
+      "keywords": ["size", "laki", "dami", "quantity", "volume"],
+      "positive": ["malaki", "marami", "big size", "large size"],
+      "negative": ["maliit", "konti lang", "kaunti", "small size", "too small", "kulang ang laman", "half empty", "hindi puno", "di puno"]
+    }
+  ]
+}

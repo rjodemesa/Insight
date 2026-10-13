@@ -17,6 +17,12 @@ const ACCEPT = ".xlsx,.csv,.gz";
 const TERMINAL = new Set(["done", "failed", "cancelled"]);
 
 /** Drag-and-drop upload, then live job progress with a cancel button. */
+const STAGE_LABEL: Record<string, string> = {
+  reading: "reading file",
+  processing: "cleaning, redacting and tagging",
+  mapping: "mapping products",
+};
+
 export default function UploadPanel({ onFinished }: { onFinished: (jobId: number) => void }) {
   const { csrfToken } = useSession();
   const api = useApi();
@@ -112,7 +118,7 @@ export default function UploadPanel({ onFinished }: { onFinished: (jobId: number
             <span>
               {uploadPct !== null
                 ? "Uploading…"
-                : job && `${job.filename}: ${job.status === "running" ? job.stage : job.status}`}
+                : job && `${job.filename}: ${job.status === "running" ? (STAGE_LABEL[job.stage ?? ""] ?? job.stage) : job.status}`}
               {job && job.processed_rows > 0 && ` · ${job.processed_rows.toLocaleString()} rows`}
             </span>
             <span>{Math.round(pct * 100)}%</span>

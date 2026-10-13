@@ -197,4 +197,11 @@ export const MIGRATIONS: string[] = [
   CREATE INDEX idx_reviews_ingest ON reviews(ingest_id);
   CREATE INDEX idx_reviews_language ON reviews(language);
   `,
+  /* v3 — Phase 2 NLP, mapping and scoring */ `
+  ALTER TABLE review_themes ADD COLUMN sentiment TEXT CHECK (sentiment IN ('positive','neutral','negative'));
+  ALTER TABLE reviews ADD COLUMN nlp_version TEXT;
+  CREATE INDEX idx_themes_vector_sentiment ON review_themes(vector, sentiment);
+  CREATE INDEX idx_alias_code ON product_aliases(retailer_product_code);
+  CREATE INDEX idx_alias_upc ON product_aliases(upc);
+  `,
 ];

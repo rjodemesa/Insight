@@ -1,0 +1,48 @@
+{
+  "$comment": "English sentiment lexicon. Word and phrase scores run from -4 (very negative) to +4 (very positive). Negators flip a following sentiment word (within 3 words, not across a comma); intensifiers raise it and dampeners lower it. Contrast words ('but') down-weight what comes before them and up-weight what comes after. Bump 'version' when you change this file, then run `npm run reprocess`.",
+  "version": "1",
+  "words": {
+    "good": 1.9, "great": 3.1, "excellent": 3.2, "amazing": 3.1, "awesome": 3.1, "superb": 3.1, "wonderful": 3.0,
+    "love": 3.0, "loved": 3.0, "loves": 2.7, "lovely": 2.8, "like": 1.4, "liked": 1.6, "likes": 1.4,
+    "nice": 1.8, "best": 3.0, "perfect": 3.0, "happy": 2.6, "satisfied": 2.5, "pleased": 2.2, "glad": 2.0,
+    "recommend": 2.0, "recommended": 2.0, "recommendable": 2.0, "legit": 1.5, "fast": 1.2, "quick": 1.2,
+    "clean": 1.0, "fresh": 1.5, "soft": 1.5, "effective": 2.0, "works": 1.5, "worked": 1.5, "worth": 1.6,
+    "affordable": 1.5, "fragrant": 2.0, "thanks": 1.2, "thank": 1.2, "ty": 1.0, "tysm": 1.5,
+    "beautiful": 2.6, "fine": 0.8, "ok": 0.6, "okay": 0.6, "oks": 0.6, "decent": 1.0, "gentle": 1.5,
+    "durable": 1.5, "sturdy": 1.5, "secure": 1.0, "intact": 1.5, "authentic": 1.5, "genuine": 1.5,
+    "wow": 2.0, "yay": 2.0, "fantastic": 3.2, "impressive": 2.6, "impressed": 2.6, "smooth": 1.2,
+    "fave": 2.4, "favorite": 2.4, "favourite": 2.4, "solid": 1.8, "efficient": 1.8, "reliable": 1.8,
+    "bad": -2.5, "poor": -2.4, "terrible": -3.2, "worst": -3.2, "awful": -3.1, "horrible": -3.2, "hate": -3.0,
+    "disappointed": -2.6, "disappointing": -2.6, "disappointment": -2.6, "broken": -2.5, "damaged": -2.5,
+    "leak": -2.0, "leaking": -2.1, "leaked": -2.1, "leaks": -2.0, "spilled": -2.0, "spill": -1.8,
+    "fake": -3.0, "counterfeit": -3.0, "expired": -3.0, "late": -1.4, "delayed": -1.6, "slow": -1.4,
+    "missing": -2.0, "wrong": -2.0, "itchy": -2.5, "rash": -2.5, "rashes": -2.5, "allergy": -2.0,
+    "allergic": -2.2, "irritation": -2.5, "irritating": -2.4, "smelly": -2.0, "stinks": -2.5, "stinky": -2.5,
+    "watery": -1.5, "diluted": -2.0, "expensive": -1.4, "overpriced": -2.5, "pricey": -1.2, "waste": -2.5,
+    "useless": -3.0, "refund": -1.5, "scam": -3.3, "scammed": -3.3, "annoying": -2.2, "dirty": -2.0,
+    "sticky": -1.0, "crushed": -2.0, "dented": -1.5, "problem": -1.5, "problems": -1.5, "issue": -1.2,
+    "issues": -1.2, "complaint": -2.0, "meh": -1.0, "sad": -2.0, "unhappy": -2.5, "angry": -3.0, "mad": -2.4,
+    "regret": -2.6, "faded": -1.5, "weak": -1.5, "harsh": -1.5, "hassle": -1.5, "rude": -2.6, "ruined": -2.8,
+    "nasty": -2.8, "ugly": -2.5, "unsealed": -2.0, "torn": -2.0, "misleading": -2.6, "ineffective": -2.4,
+    "imitation": -2.6, "damage": -2.0, "damages": -2.0, "solved": 1.5, "replica": -2.4, "smaller": -0.8, "incomplete": -2.0, "unresponsive": -2.2
+  },
+  "phrases": {
+    "will buy again": 2.6, "buy again": 2.2, "will order again": 2.6, "order again": 2.2, "repeat order": 2.2,
+    "highly recommend": 3.2, "highly recommended": 3.2, "value for money": 2.2, "worth it": 2.2,
+    "not worth": -2.5, "not worth it": -2.6, "waste of money": -3.1, "never again": -3.0, "do not buy": -3.0,
+    "don't buy": -3.0, "dont buy": -3.0, "as described": 1.6, "not as described": -2.6, "smells good": 2.2,
+    "smells great": 2.8, "thank you": 1.5, "fast delivery": 1.6, "fast shipping": 1.6, "well packed": 2.0,
+    "well sealed": 1.6, "five stars": 2.6, "5 stars": 2.6, "5 star": 2.6, "one star": -2.4, "1 star": -2.4,
+    "no complaints": 2.0, "no problem": 1.6, "no issues": 1.6, "not bad": 1.2, "not the same": -1.6,
+    "out of stock": -1.0, "too strong": -1.4, "half empty": -2.2, "doesn't last": -1.8, "does not last": -1.8,
+    "not delivered": -2.4, "not received": -2.4, "never arrived": -2.6, "never received": -2.6
+  },
+  "negators": ["not", "no", "never", "dont", "don't", "didnt", "didn't", "isnt", "isn't", "wasnt", "wasn't",
+    "doesnt", "doesn't", "cant", "can't", "cannot", "wont", "won't", "hardly", "without", "nothing", "neither", "nor", "aint", "ain't"],
+  "intensifiers": {
+    "very": 0.3, "really": 0.3, "so": 0.25, "super": 0.35, "extremely": 0.45, "too": 0.2, "totally": 0.3,
+    "absolutely": 0.35, "quite": 0.15, "most": 0.2, "truly": 0.3, "highly": 0.3, "incredibly": 0.4,
+    "slightly": -0.4, "kinda": -0.3, "somewhat": -0.3, "barely": -0.5, "little": -0.25, "bit": -0.25
+  },
+  "contrast": ["but", "however", "though", "although", "except"]
+}

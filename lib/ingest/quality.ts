@@ -1,4 +1,6 @@
 import type { CleanRow, RowIssues } from "./clean";
+import type { MappingStats } from "@/lib/mapping/products";
+import type { ReviewAnalysis } from "@/lib/nlp/analyze";
 import type { Language } from "@/lib/nlp/language";
 import type { PiiKind } from "@/lib/redact/rules";
 
@@ -20,6 +22,19 @@ export interface QualityReport {
   dateRange: { from: string | null; to: string | null };
   /** 0–100. See QUALITY_SCORE_FORMULA. */
   score: number;
+  /** Phase 2 tagging summary. Absent on reports from earlier imports. */
+  nlp?: NlpSummary;
+}
+
+export interface NlpSummary {
+  sentiment: { positive: number; neutral: number; negative: number; none: number };
+  recordsWithThemes: number;
+  ratingTextConflicts: number;
+  /** Theme id → number of reviews tagged with it. */
+  themes: Record<string, number>;
+  /** Vector → number of reviews with at least one theme in it. */
+  vectors: Record<string, number>;
+  mapping: MappingStats | null;
 }
 
 /**
@@ -38,8 +53,16 @@ export class QualityAccumulator {
     invalidRatings: 0, missingRatings: 0, missingVerified: 0, languages: {}, redactions: {},
     recordsWithRedactions: 0, categories: {}, retailers: {}, dateRange: { from: null, to: null }, score: 0,
   };
+  private nlp: NlpSummary = {
+    sentiment: { positive: 0, neutral: 0, negative: 0, none: 0 },
+    recordsWithThemes: 0, ratingTextConflicts: 0, themes: {}, vectors: {}, mapping: null,
+  };
 
-  add(row: CleanRow, issues: RowIssues, extra: { duplicate: boolean; language: Language; redactions: PiiKind[] }) {
+  setMapping(m: MappingStats) {
+    this.nlp.mapping = m;
+  }
+
+  add(row: CleanRow, issues: RowIssues, extra: { duplicate: boolean; language: Language; redactions: PiiKind[]; analysis?: ReviewAnalysis }) {
     const r = this.r;
     r.totalRows++;
     const len = row.reviewText?.length ?? 0;
@@ -58,6 +81,15 @@ export class QualityAccumulator {
     r.categories[cat] = (r.categories[cat] ?? 0) + 1;
     const ret = row.retailerName ?? "(none)";
     r.retailers[ret] = (r.retailers[ret] ?? 0) + 1;
+    const a = extra.analysis;
+    if (a) {
+      const n = this.nlp;
+      n.sentiment[a.sentiment ?? "none"]++;
+      if (a.ratingTextConflict === 1) n.ratingTextConflicts++;
+      if (a.themes.length) n.recordsWithThemes++;
+      for (const t of a.themes) n.themes[t.theme] = (n.themes[t.theme] ?? 0) + 1;
+      for (const v of new Set(a.themes.map((t) => t.vector))) n.vectors[v] = (n.vectors[v] ?? 0) + 1;
+    }
     const d = row.reviewDateISO;
     if (d) {
       if (!r.dateRange.from || d < r.dateRange.from) r.dateRange.from = d;
@@ -74,6 +106,6 @@ export class QualityAccumulator {
       0.2 * ((r.invalidDates + r.missingDates) / n) +
       0.15 * ((r.invalidRatings + r.missingRatings) / n) +
       0.1 * (r.missingVerified / n);
-    return { ...r, score: r.totalRows ? Math.round(1000 * (1 - penalty)) / 10 : 0 };
+    return { ...r, score: r.totalRows ? Math.round(1000 * (1 - penalty)) / 10 : 0, nlp: this.nlp };
   }
 }

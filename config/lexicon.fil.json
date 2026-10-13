@@ -1,0 +1,40 @@
+{
+  "$comment": "Filipino and Taglish sentiment lexicon, including common text-speak spellings. Same scale and rules as lexicon.en.json. Prefixes napaka-, pinaka- and sobrang- before a listed word count as intensifiers (napakabango = very + bango). Bump 'version' when you change this file, then run `npm run reprocess`.",
+  "version": "1",
+  "words": {
+    "maganda": 2.5, "ganda": 2.2, "mabango": 2.5, "bango": 2.2, "sulit": 2.5, "salamat": 1.2, "slamat": 1.2,
+    "galing": 2.5, "magaling": 2.5, "ayos": 1.5, "oks": 0.8, "goods": 1.5, "gusto": 2.0, "nagustuhan": 2.5,
+    "malinis": 1.5, "linis": 1.2, "malambot": 1.8, "lambot": 1.6, "mura": 1.0, "mabilis": 1.2, "bilis": 1.0,
+    "panalo": 2.5, "astig": 2.0, "tipid": 1.5, "matipid": 1.5, "swabe": 2.0, "saya": 2.0, "masaya": 2.0,
+    "kuntento": 2.0, "maayos": 1.8, "matibay": 1.8, "sakto": 1.5, "bet": 1.5, "babalik": 2.0, "uulit": 2.0,
+    "mabait": 1.8, "kumpleto": 1.2, "kompleto": 1.2, "kapit": 1.2, "kumakapit": 1.6, "epektib": 2.0,
+    "solb": 2.0, "ambilis": 1.4, "ambango": 2.4, "anganda": 2.2, "angganda": 2.2, "sulit na sulit": 3.0, "lupet": 2.2, "angas": 1.6, "petmalu": 2.2,
+    "pangit": -2.5, "panget": -2.5, "mabaho": -2.5, "baho": -2.2, "sira": -2.5, "nasira": -2.5, "basag": -2.5,
+    "nabasag": -2.5, "tagas": -2.0, "tumagas": -2.2, "tumatagas": -2.2, "natapon": -2.0, "peke": -3.0,
+    "mahal": -1.2, "nagmahal": -1.6, "matagal": -0.8, "kulang": -2.0, "mali": -2.0, "makati": -2.5,
+    "kati": -2.0, "nangati": -2.5, "hapdi": -2.5, "mahapdi": -2.5, "pantal": -2.4, "malabnaw": -2.0,
+    "labnaw": -1.8, "sayang": -2.4, "lugi": -2.5, "nalugi": -2.6, "dismayado": -2.8, "nakakadismaya": -2.8,
+    "nakakainis": -2.5, "inis": -2.0, "badtrip": -2.5, "bwisit": -2.8, "sablay": -2.0, "palpak": -2.5,
+    "yupi": -1.5, "nayupi": -1.5, "durog": -2.0, "luma": -1.0, "bastos": -2.8, "matigas": -1.2,
+    "maliit": -0.8, "kaunti": -0.8, "ubos": -0.8, "nakakadiri": -3.0, "kadiri": -2.8, "punit": -2.0
+  },
+  "phrases": {
+    "order ulit": 2.2, "mag order ulit": 2.4, "bibili ulit": 2.6, "bibili pa ulit": 2.6, "oorder ulit": 2.6,
+    "oorder pa ulit": 2.6, "ang bango": 2.6, "sayang pera": -3.0, "sayang ang pera": -3.0,
+    "maraming salamat": 1.8, "mabilis dumating": 1.8, "bilis dumating": 1.8, "matagal dumating": -2.0,
+    "tagal dumating": -2.0, "tagal ng bango": 2.2, "matagal ang bango": 2.2, "di na ulit": -2.6,
+    "hindi na ulit": -2.6, "hindi na ako bibili": -3.0, "di na ako bibili": -3.0, "wag bumili": -3.0,
+    "huwag bumili": -3.0, "parang fake": -3.0, "parang peke": -3.0, "parang tubig": -2.0,
+    "da best": 3.0, "the best": 3.0, "sulit na sulit": 3.2, "mabilis mawala": -1.8, "nawawala agad": -1.8,
+    "masakit sa ilong": -2.0, "sobrang tapang": -1.4, "iba sa picture": -2.4, "walang epekto": -2.4,
+    "di umeepekto": -2.4, "walang reply": -2.0, "hindi dumating": -2.6, "di dumating": -2.6
+  },
+  "negators": ["hindi", "di", "hnd", "ndi", "hndi", "hinde", "wala", "walang", "wla", "wlang", "huwag", "wag",
+    "ayaw", "ayoko", "hindi na", "di na"],
+  "intensifiers": {
+    "sobra": 0.35, "sobrang": 0.4, "napaka": 0.4, "pinaka": 0.45, "talaga": 0.25, "tlga": 0.25, "tlaga": 0.25,
+    "grabe": 0.3, "grabeng": 0.35, "super": 0.35, "sobrng": 0.4, "todo": 0.3,
+    "medyo": -0.35, "konti": -0.25, "kaunti": -0.25, "parang": -0.15
+  },
+  "contrast": ["pero", "kaso", "kaya lang", "kaya lng", "kaso lang", "kahit"]
+}

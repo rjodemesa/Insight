@@ -1,7 +1,10 @@
 "use client";
 
 import ProvenanceBadge from "@/components/ProvenanceBadge";
+import taxonomy from "@/config/taxonomy.json";
 import type { QualityReport as Report } from "@/lib/ingest/quality";
+
+const THEME_LABEL: Record<string, string> = Object.fromEntries(taxonomy.themes.map((t) => [t.id, t.label]));
 
 const pct = (n: number, d: number) => (d ? `${((100 * n) / d).toFixed(1)}%` : "–");
 const day = (iso: string | null) => (iso ? iso.slice(0, 10) : "–");
@@ -57,6 +60,7 @@ export default function QualityReport({ filename, report, formula }: { filename:
         <Tile label="Missing verified flag" value={pct(report.missingVerified, n)} />
         <Tile label="Records with redactions" value={report.recordsWithRedactions.toLocaleString()} sub={pct(report.recordsWithRedactions, n)} kind="DERIVED" />
       </div>
+      {report.nlp && <Tagging nlp={report.nlp} n={n} />}
       <div className="grid gap-6 md:grid-cols-3">
         <Breakdown title="Language mix" data={report.languages as Record<string, number>} total={n} />
         <Breakdown title="Redactions by type" data={report.redactions as Record<string, number>} total={report.recordsWithRedactions} />
@@ -66,5 +70,36 @@ export default function QualityReport({ filename, report, formula }: { filename:
         </div>
       </div>
     </section>
+  );
+}
+
+function Tagging({ nlp, n }: { nlp: NonNullable<Report["nlp"]>; n: number }) {
+  const s = nlp.sentiment;
+  const withText = n - s.none;
+  const m = nlp.mapping;
+  const themes = Object.fromEntries(Object.entries(nlp.themes).map(([k, v]) => [THEME_LABEL[k] ?? k, v]));
+  return (
+    <div className="space-y-3">
+      <h3 className="text-base font-semibold">Tagging and product mapping</h3>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <Tile label="Positive / neutral / negative" kind="DERIVED"
+          value={`${pct(s.positive, withText)} / ${pct(s.neutral, withText)} / ${pct(s.negative, withText)}`}
+          sub={`Of ${withText.toLocaleString()} reviews with text. Rule-based lexicon.`} />
+        <Tile label="Reviews with a theme" kind="DERIVED" value={pct(nlp.recordsWithThemes, withText)}
+          sub={`${nlp.recordsWithThemes.toLocaleString()} reviews`} />
+        <Tile label="Rating and text disagree" kind="DERIVED" value={nlp.ratingTextConflicts.toLocaleString()}
+          sub="4–5 stars with clearly negative text, or 1–2 stars with clearly positive text" />
+        {m && (
+          <Tile label="Products" kind="DERIVED" value={`${m.listings.toLocaleString()} listings`}
+            sub={`${m.newProducts} new products, ${m.exactMatches} exact and ${m.fuzzyMatches} fuzzy matches to known ones`} />
+        )}
+      </div>
+      <div className="grid gap-6 md:grid-cols-3">
+        <Breakdown title="Reviews per vector" data={nlp.vectors} total={withText} />
+        <div className="md:col-span-2">
+          <Breakdown title="Reviews per theme" data={themes} total={withText} />
+        </div>
+      </div>
+    </div>
   );
 }
