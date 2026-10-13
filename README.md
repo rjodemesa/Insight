@@ -153,7 +153,7 @@ Roles are enforced on the server in every API route (`lib/auth/guard.ts`), not o
 
 ## Branding
 
-Colours and fonts are placeholder tokens in `app/globals.css`, mirrored in `lib/theme.ts` for charts. Replace `public/brand/logo.svg` with the official asset. The P&G logo is intentionally not recreated.
+P&G branding, for an academic presentation only: this is not an official P&G product, and every page says so in its footer. The logo (`public/brand/logo.svg`, also the browser-tab icon in `app/icon.svg`) is the current P&G mark from Wikimedia Commons, unmodified. P&G does not publish its colour specs, so the brand blue is Pantone 293 C (`#003DA5`), the core blue of the logo, with the logo's light blue `#00A3E0` used only for the stripe under the header. Tokens are in `app/globals.css`, mirrored in `lib/theme.ts`. Chart colours stay on the colour-blind-safe scale. Fonts are system fonts, because P&G's typeface is proprietary.
 
 ## Limitations (current phase)
 

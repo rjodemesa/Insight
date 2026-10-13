@@ -1,18 +1,19 @@
 /**
  * JS mirror of the CSS tokens in app/globals.css, for places that need literal
- * colours (Recharts). Keep the two in sync. Values are placeholders until the
- * official brand palette is supplied.
+ * colours (Recharts). Keep the two in sync. Brand values are P&G blues; the chart
+ * colours stay on the colour-blind-safe scale below.
  */
 export const theme = {
-  brand: "#0047bb",
-  brandStrong: "#00307d",
-  brandSoft: "#e8f0fc",
+  brand: "#003da5",
+  brandStrong: "#002a7a",
+  brandSoft: "#e6eef9",
+  brandLight: "#00a3e0",
   ink: "#14213d",
   inkMuted: "#4a5873",
   border: "#d5dbe6",
   sentiment: { positive: "#1b7f3b", neutral: "#5c6577", negative: "#b42318" },
   /** Categorical series, colour-blind-friendly order. */
-  series: ["#0047bb", "#e07b00", "#1b7f3b", "#6941c6", "#b42318", "#0e7490", "#7a5af8", "#475467"],
+  series: ["#003da5", "#e07b00", "#1b7f3b", "#6941c6", "#b42318", "#0e7490", "#7a5af8", "#475467"],
   /**
    * Chart marks. Sentiment is a diverging scale: blue ↔ red poles with a gray midpoint.
    * Green ↔ red was rejected: deuteranopes see ΔE 4.2 between them (validator target ≥ 8);

@@ -1,15 +1,18 @@
 @import "tailwindcss";
 
 /*
- * Design tokens: the single place to drop in official brand colours and fonts.
- * The values below are PLACEHOLDER blues, not official P&G colours.
+ * Design tokens: the single place for brand colours and fonts.
+ * P&G blue is Pantone 293 C (#003DA5), the core blue of the logo; #00A3E0 is the light
+ * logo blue, used for decoration only (too light for text on white).
+ * Academic prototype for presentation only; not an official P&G product.
  * All text/background pairs below meet WCAG AA (4.5:1) contrast.
  * lib/theme.ts mirrors these for charts (Recharts needs literal colours).
  */
 :root {
-  --color-brand: #0047bb;        /* primary actions, active nav */
-  --color-brand-strong: #00307d; /* hover, header */
-  --color-brand-soft: #e8f0fc;   /* selected rows, chips */
+  --color-brand: #003da5;        /* P&G blue: primary actions, active nav */
+  --color-brand-strong: #002a7a; /* hover, pressed */
+  --color-brand-soft: #e6eef9;   /* selected rows, chips, nav hover */
+  --color-brand-light: #00a3e0;  /* logo light blue: accent stripe only */
   --color-ink: #14213d;          /* body text */
   --color-ink-muted: #4a5873;    /* secondary text */
   --color-surface: #ffffff;
@@ -35,6 +38,7 @@
   --color-brand: var(--color-brand);
   --color-brand-strong: var(--color-brand-strong);
   --color-brand-soft: var(--color-brand-soft);
+  --color-brand-light: var(--color-brand-light);
   --color-ink: var(--color-ink);
   --color-ink-muted: var(--color-ink-muted);
   --color-surface: var(--color-surface);
@@ -60,6 +64,12 @@ body {
 :focus-visible {
   outline: 3px solid var(--color-focus);
   outline-offset: 2px;
+}
+
+/* Blue gradient stripe under the header, echoing the logo. */
+.brand-stripe {
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-brand) 0%, var(--color-brand-light) 100%);
 }
 
 .skip-link {

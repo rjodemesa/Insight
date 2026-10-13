@@ -55,11 +55,15 @@ export default function AppNav({ role, email, csrfToken }: { role: Role; email: 
   }
 
   return (
-    <header className="bg-brand-strong text-white">
+    <header className="border-b border-line bg-surface text-ink">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-4 px-4 py-2 sm:px-6">
-        {/* Logo slot: replace public/brand/logo.svg with the official asset. */}
-        <img src="/brand/logo.svg" alt="Company logo" width={120} height={32} />
-        <span className="font-semibold">Consumer Insight</span>
+        <Link href="/dashboard" className="flex items-center gap-2" aria-label="P&G Consumer Insight, go to Dashboard">
+          <img src="/brand/logo.svg" alt="" width={36} height={36} />
+          <span className="leading-tight">
+            <span className="block text-sm font-semibold text-brand">Consumer Insight</span>
+            <span className="block text-[11px] text-ink-muted">P&amp;G Philippines</span>
+          </span>
+        </Link>
         <nav aria-label="Main" className="flex flex-1 flex-wrap gap-1">
           {tabs.map((t) => {
             const active = pathname.startsWith(t.href);
@@ -69,7 +73,7 @@ export default function AppNav({ role, email, csrfToken }: { role: Role; email: 
                 href={t.href}
                 aria-current={active ? "page" : undefined}
                 title={`${t.label} (g ${t.key})`}
-                className={`rounded px-3 py-1.5 text-sm ${active ? "bg-white text-brand-strong" : "hover:bg-white/15"}`}
+                className={`rounded px-3 py-1.5 text-sm ${active ? "bg-brand text-white" : "text-ink hover:bg-brand-soft"}`}
               >
                 <span aria-hidden="true" className="mr-1">{t.icon}</span>
                 {t.label}
@@ -77,16 +81,17 @@ export default function AppNav({ role, email, csrfToken }: { role: Role; email: 
             );
           })}
         </nav>
-        <Link href="/audit" title="Audit Log (g a)" aria-label="Audit Log" className="rounded px-2 py-1 hover:bg-white/15">
+        <Link href="/audit" title="Audit Log (g a)" aria-label="Audit Log" className="rounded px-2 py-1 text-ink-muted hover:bg-brand-soft">
           <span aria-hidden="true">≣</span>
         </Link>
-        <span className="text-sm opacity-90">
+        <span className="text-sm text-ink-muted">
           {email} · {role === "it_officer" ? "IT officer" : "User"}
         </span>
-        <button onClick={logout} className="rounded border border-white/40 px-3 py-1 text-sm hover:bg-white/15">
+        <button onClick={logout} className="rounded border border-line px-3 py-1 text-sm hover:bg-brand-soft">
           Sign out
         </button>
       </div>
+      <div className="brand-stripe" aria-hidden="true" />
     </header>
   );
 }

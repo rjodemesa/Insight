@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Disclaimer from "@/components/Disclaimer";
 
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
@@ -23,11 +24,15 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-6">
-      <form onSubmit={onSubmit} className="w-full max-w-sm space-y-4 rounded-lg border border-line bg-surface p-8 shadow-sm">
-        <div>
-          <h1 className="text-xl font-semibold">Consumer Insight Platform</h1>
-          <p className="text-sm text-ink-muted">Sign in with your local account.</p>
+    <main className="flex min-h-screen flex-col items-center justify-center gap-4 p-6">
+      <form onSubmit={onSubmit} className="w-full max-w-sm space-y-4 overflow-hidden rounded-lg border border-line bg-surface p-8 pt-0 shadow-sm">
+        <div className="brand-stripe -mx-8 mb-6" aria-hidden="true" />
+        <div className="flex items-center gap-3">
+          <img src="/brand/logo.svg" alt="P&G" width={48} height={48} />
+          <div>
+            <h1 className="text-xl font-semibold text-brand">Consumer Insight</h1>
+            <p className="text-sm text-ink-muted">P&amp;G Philippines · sign in with your local account</p>
+          </div>
         </div>
         <label className="block text-sm font-medium">
           Email
@@ -45,6 +50,7 @@ export default function LoginPage() {
           {busy ? "Signing in…" : "Sign in"}
         </button>
       </form>
+      <Disclaimer className="max-w-sm" />
     </main>
   );
 }
