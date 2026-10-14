@@ -162,7 +162,7 @@ export function whereClause(f: Filters, opts: { skipDates?: boolean } = {}): Whe
     parts.push(`(${ors.join(" OR ")})`);
   }
   if (f.theme.length || f.vector.length || f.themeSentiment) {
-    const sub: string[] = ["t.review_id = r.id"];
+    const sub: string[] = [];
     if (f.theme.length) {
       sub.push(`t.theme IN (${f.theme.map(() => "?").join(",")})`);
       params.push(...f.theme);
@@ -175,7 +175,9 @@ export function whereClause(f: Filters, opts: { skipDates?: boolean } = {}): Whe
       sub.push("t.sentiment = ?");
       params.push(f.themeSentiment);
     }
-    parts.push(`EXISTS (SELECT 1 FROM review_themes t WHERE ${sub.join(" AND ")})`);
+    // Not a correlated EXISTS: SQLite would answer it through the vector index once per
+    // review (24 s for vector=Communication). IN builds the matching set once.
+    parts.push(`r.id IN (SELECT t.review_id FROM review_themes t WHERE ${sub.join(" AND ")})`);
   }
   if (!opts.skipDates) {
     if (f.from) {

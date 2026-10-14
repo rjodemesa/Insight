@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import type { brands, retailers, summary, themes, trend } from "@/lib/insights/queries";
 import type { operations } from "@/lib/insights/operations";
@@ -18,6 +18,8 @@ import KpiRow from "./KpiRow";
 import KeyFindings from "./KeyFindings";
 import AiSummary from "@/components/ai/AiSummary";
 import { ActiveAlerts } from "@/components/alerts/AlertsWorkspace";
+import { PERSONA_PARAM, personaFrom } from "@/lib/personas";
+import PersonaDashboard from "./PersonaDashboard";
 
 type Summary = ReturnType<typeof summary>;
 type Trend = ReturnType<typeof trend>;
@@ -26,8 +28,14 @@ type Retailers = ReturnType<typeof retailers>;
 type Brands = ReturnType<typeof brands>;
 type Ops = ReturnType<typeof operations>;
 
-/** One-glance view for every persona. Each panel reads the same URL filters; each drills down to reviews. */
+/** The Overview, or the dashboard of the persona picked in Views (?persona=). */
 export default function Dashboard() {
+  const persona = personaFrom(useSearchParams().get(PERSONA_PARAM));
+  return persona ? <PersonaDashboard key={persona} persona={persona} /> : <Overview />;
+}
+
+/** One-glance view across personas. Each panel reads the same URL filters; each drills down to reviews. */
+function Overview() {
   const router = useRouter();
   const { query } = useFilters();
   const qs = withQuery(query);

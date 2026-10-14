@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { PERSONA_DASHBOARDS, PERSONA_PARAM, personaFrom, personaHref, type PersonaKey } from "@/lib/personas";
 import { useApi } from "@/components/SessionContext";
 import { useJson } from "@/components/ui/useJson";
 import { useFilters } from "./useFilters";
@@ -17,10 +19,17 @@ interface ViewsResponse {
   presets: View[];
 }
 
-/** Apply a saved or built-in view, save the current filters under a name, or delete your own views. */
+/**
+ * Switch between the Overview and the persona dashboards, apply a saved or built-in view,
+ * save the current filters under a name, or delete your own views.
+ */
 export default function SavedViews() {
   const api = useApi();
   const f = useFilters();
+  const router = useRouter();
+  const openPersona = personaFrom(useSearchParams().get(PERSONA_PARAM));
+  // Highlight the open dashboard only while on the Dashboard tab.
+  const current = usePathname() === "/dashboard" ? openPersona : undefined;
   const { data, reload } = useJson<ViewsResponse>("/api/views");
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -75,6 +84,11 @@ export default function SavedViews() {
     }
     return [...by.entries()];
   };
+  const openDashboard = (key: PersonaKey | null) => {
+    router.push(personaHref(key));
+    setOpen(false);
+  };
+  const dashboards: [PersonaKey | null, string][] = [[null, "Overview"], ...Object.entries(PERSONA_DASHBOARDS).map(([k, d]) => [k as PersonaKey, d.title] as [PersonaKey, string])];
   const apply = (v: View) => {
     f.replaceAll(v.filters);
     setOpen(false);
@@ -88,6 +102,18 @@ export default function SavedViews() {
       </button>
       {open && (
         <div className="absolute right-0 z-20 mt-1 w-80 space-y-3 rounded-lg border border-line bg-surface p-3 text-sm shadow-lg">
+          <section>
+            <h3 className="mb-1 font-semibold">Dashboards</h3>
+            <div className="flex flex-wrap gap-1" role="group" aria-label="Dashboards">
+              {dashboards.map(([key, title]) => (
+                <button key={title} type="button" onClick={() => openDashboard(key)} aria-pressed={current === key}
+                  className={`rounded border px-2 py-0.5 text-xs ${current === key ? "border-brand bg-brand text-white" : "border-line hover:bg-brand-soft"}`}>
+                  {title}
+                </button>
+              ))}
+            </div>
+          </section>
+
           <section>
             <h3 className="mb-1 font-semibold">My views</h3>
             {data?.saved.length ? (

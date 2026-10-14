@@ -42,6 +42,9 @@ html[data-theme="dark"] .brand-stripe {
   background: linear-gradient(90deg, #2560c8 0%, var(--color-brand-light) 100%);
 }
 
+/* brand-strong is a fill in dark mode; as text (KPI values) it needs a light shade. */
+html[data-theme="dark"] .text-brand-strong { color: #b5cdff; }
+
 /* Filled backgrounds under white text: deeper shades. */
 html[data-theme="dark"] .bg-brand { background-color: #2560c8; }
 html[data-theme="dark"] .bg-brand\/70 { background-color: rgb(37 96 200 / 0.7); }

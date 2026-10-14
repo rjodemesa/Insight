@@ -65,6 +65,8 @@ export function summary(conn: Conn, f: Filters) {
          SUM(r.sentiment = 'negative') AS negative,
          SUM(r.rating_text_conflict = 1) AS conflicts,
          SUM(r.verified_purchase = 1) AS verified,
+         SUM(r.review_text <> '' AND r.id NOT IN (SELECT review_id FROM review_themes)) AS untagged,
+         SUM(r.verified_at IS NOT NULL) AS human_verified,
          COUNT(DISTINCT r.product_id) AS products, COUNT(DISTINCT r.brand) AS brands,
          COUNT(DISTINCT r.retailer_name) AS retailers,
          MIN(r.review_date_iso) AS date_from, MAX(r.review_date_iso) AS date_to
@@ -83,6 +85,10 @@ export function summary(conn: Conn, f: Filters) {
       weightedMean: round(row.sentiment),
     },
     ratingTextConflicts: Number(row.conflicts ?? 0),
+    /** Reviews with text but no theme: candidates for AI tagging or new taxonomy rules. */
+    untagged: Number(row.untagged ?? 0),
+    /** Reviews whose sentiment a person has checked in the Verify queue. */
+    humanVerified: Number(row.human_verified ?? 0),
     verifiedShare: row.n ? round(Number(row.verified ?? 0) / row.n) : null,
     products: Number(row.products ?? 0), brands: Number(row.brands ?? 0), retailers: Number(row.retailers ?? 0),
     dateRange: { from: row.date_from as string | null, to: row.date_to as string | null },
