@@ -1,0 +1,490 @@
+===============================================================================
+                    PRISM - HOW EACH DERIVED KPI IS CALCULATED
+===============================================================================
+
+  A Digital Platform for Consumer-Driven Brand Growth
+  Academic prototype for presentation only. Not an official P&G product.
+
+  Worked examples use the current dataset: 75,618 Lazada PH Fabric Care
+  reviews, imported 2026-10-12.
+
+
+-------------------------------------------------------------------------------
+ CONTENTS
+-------------------------------------------------------------------------------
+
+  0. Reading this document: the four provenance labels
+  1. Building blocks (calculated once per review)
+       1.1  Review sentiment
+       1.2  Theme tags and theme sentiment
+       1.3  Trust weight
+       1.4  Rating-vs-text conflict
+  2. Overview dashboard KPIs
+  3. Persona dashboard KPIs
+  4. Rules that apply to every KPI
+  5. Quick reference table
+
+
+===============================================================================
+ 0. READING THIS DOCUMENT: THE FOUR PROVENANCE LABELS
+===============================================================================
+
+  Every number on screen carries one of these badges:
+
+    OBSERVED   Taken straight from the uploaded data (e.g. star rating).
+    DERIVED    Calculated from observed data by a fixed, documented formula.
+               Same data in, same number out, every time.
+    ESTIMATED  Depends on an assumption you can edit. Not a measurement.
+    AI         Written or tagged by an AI model. Check it against sources.
+
+  This document covers every DERIVED and ESTIMATED KPI. No KPI on the
+  dashboards is labelled AI: the AI only writes summaries and explanations.
+
+
+===============================================================================
+ 1. BUILDING BLOCKS (CALCULATED ONCE PER REVIEW, AT IMPORT)
+===============================================================================
+
+  These are not KPIs themselves, but most KPIs are built from them.
+  They run only on REDACTED text, so no personal data is involved.
+
+-------------------------------------------------------------------------------
+ 1.1  Review sentiment                                               DERIVED
+-------------------------------------------------------------------------------
+
+  Method:  Word-score (lexicon) method in the style of VADER, tuned for
+           English, Filipino and Taglish.
+
+    Step 1  Each sentiment word or phrase has a score from -4 to +4.
+    Step 2  Adjust each word for its context:
+              - Negation  : a negator up to 3 words before it (e.g. "not",
+                            "hindi", "walang") flips it: score x -0.74
+              - Intensity : "very" x 1.3, "medyo" (somewhat) x 0.65, etc.
+              - Contrast  : in a sentence with "but" / "pero", words before
+                            it count x 0.5, words after it x 1.5
+              - Emphasis  : each "!" (up to 3) adds 0.292 in the
+                            sentence's direction
+    Step 3  Add up all word scores in the title and text = sum
+    Step 4  Squash into the range -1 to +1:
+
+                compound = sum / sqrt(sum^2 + 15)
+
+    Step 5  Label:
+                compound >= +0.05   ->  positive
+                compound <= -0.05   ->  negative
+                otherwise           ->  neutral
+
+  Notes:   - Star ratings are NOT used, so ratings can act as an
+             independent check (see 1.4).
+           - Reviews with no text get no sentiment and are left out of
+             every sentiment KPI.
+           - A label a person confirmed in the Verify queue replaces the
+             automatic one.
+
+-------------------------------------------------------------------------------
+ 1.2  Theme tags and theme sentiment                                 DERIVED
+-------------------------------------------------------------------------------
+
+  Method:  Keyword rules from the taxonomy (config/taxonomy.json). Each
+           theme belongs to one of the 5 Vectors of Superiority:
+           Product, Packaging, Communication, Retail Execution, Value.
+
+    Theme tag        A review gets a theme when one of the theme's
+                     keywords or phrases appears in it.
+
+    Theme sentiment  Each mention of the theme is read as positive or
+                     negative (from the keyword itself, or from its
+                     sentence's sentiment). Then, per theme in a review:
+
+                       negative  if negative mentions >= positive
+                                 mentions (and at least one negative)
+                       positive  if any positive mentions
+                       neutral   otherwise
+
+                     Ties count as negative on purpose: the complaint is
+                     the part someone can act on.
+
+  Example: "Mabango pero tumagas yung bote" (smells nice but the bottle
+           leaked) -> Scent: positive, Leaks and spills: negative.
+
+-------------------------------------------------------------------------------
+ 1.3  Trust weight                                                   DERIVED
+-------------------------------------------------------------------------------
+
+  Purpose: Verified, substantive, helpful reviews count for more than
+           anonymous one-word ones. Used in the Intelligence Score.
+
+    trust weight = Verified  x  Text  x  Helpful bonus      (range 0 - 1.5)
+
+      Verified        1.0 verified purchase
+                      0.8 unknown
+                      0.6 not verified
+      Text            1.0 normal text
+                      0.7 1-3 characters (e.g. "ty")
+                      0.5 no text
+      Helpful bonus   1 + min(0.5, 0.1 x log2(1 + helpful votes))
+      Duplicates      0  (they do not count at all)
+
+  Example: verified, normal text, 7 helpful votes
+           = 1.0 x 1.0 x (1 + 0.1 x log2(8)) = 1.0 x 1.0 x 1.3 = 1.3
+
+-------------------------------------------------------------------------------
+ 1.4  Rating-vs-text conflict                                        DERIVED
+-------------------------------------------------------------------------------
+
+  A review is flagged when the stars and the words clearly disagree:
+
+      4-5 stars  AND  compound <= -0.30      (happy stars, unhappy words)
+      1-2 stars  AND  compound >= +0.30      (unhappy stars, happy words)
+
+  Only reviews with both a rating and at least one sentiment word can be
+  flagged. Common causes: sarcasm, Taglish the lexicon misreads, or a
+  customer rating the seller differently from the product.
+
+
+===============================================================================
+ 2. OVERVIEW DASHBOARD KPIs
+===============================================================================
+
+  All of these follow the filters you have set (see section 4).
+
+-------------------------------------------------------------------------------
+ 2.1  Sentiment (positive / neutral / negative share)                DERIVED
+-------------------------------------------------------------------------------
+
+    positive share = positive reviews / reviews with a sentiment label
+    negative share = negative reviews / reviews with a sentiment label
+    neutral share  = neutral reviews  / reviews with a sentiment label
+
+  The denominator is reviews WITH TEXT, not all reviews.
+
+  Example: 46,424 positive / 55,989 labelled reviews  = 82.9 % positive
+            1,730 negative / 55,989 labelled reviews  =  3.1 % negative
+
+-------------------------------------------------------------------------------
+ 2.2  Intelligence Score  (0 - 100)                                  DERIVED
+-------------------------------------------------------------------------------
+
+  One number combining what customers say, how they rate, and how often
+  they complain. It is an index, NOT a probability.
+
+  STEP 1 - Three components, each scaled to 0-1 and trust-weighted (1.3):
+
+      S  Sentiment   = (weighted average compound + 1) / 2
+      R  Rating      = (weighted average stars - 1) / 4
+      Q  Issue-free  = 1 - weighted share of reviews with at least
+                           one NEGATIVE theme
+
+  STEP 2 - Raw score:
+
+      raw = 100 x (0.40 x S  +  0.35 x R  +  0.25 x Q)
+
+      If a component is missing (e.g. no ratings), it is dropped and the
+      other weights are rescaled so they still add up to 1.
+
+  STEP 3 - Small-sample correction (shrinkage), for products, brands and
+           retailers:
+
+      score = (w x raw  +  20 x prior) / (w + 20)
+
+        w      = sum of trust weights in the group (its "effective size")
+        prior  = raw score of everything in the current view
+        20     = how many reviews' worth of pull toward the prior
+
+      So 3 glowing reviews cannot outrank 3,000 good ones.
+      For the whole view (the KPI tile) there is nothing to shrink
+      toward, so the tile shows the raw score.
+
+  Example of shrinkage: a product with raw = 60 and w = 10, in a view
+  whose prior is 89.5:
+      (10 x 60 + 20 x 89.5) / (10 + 20) = 2,390 / 30 = 79.7
+
+  Reliability tag:  under 30 reviews = low | 30-99 = medium | 100+ = high
+
+  Current value: 89.5 (all reviews)
+
+-------------------------------------------------------------------------------
+ 2.3  Products                                                       DERIVED
+-------------------------------------------------------------------------------
+
+    products = number of distinct canonical products in the view
+
+  Each retailer listing is matched to one canonical product, in this
+  order (first match wins):
+      1. same UPC barcode
+      2. same brand + retailer product code
+      3. same brand + cleaned-up name + size
+      4. same brand and size, names at least 85 % similar (typo-tolerant)
+      5. otherwise a new product
+
+  Current value: 2,059 listings -> 1,749 products
+
+-------------------------------------------------------------------------------
+ 2.4  Rating disagrees with text                                     DERIVED
+-------------------------------------------------------------------------------
+
+    count of reviews flagged by rule 1.4
+
+  Current value: 882
+
+-------------------------------------------------------------------------------
+ 2.5  Data quality (latest import)  (0 - 100)                        DERIVED
+-------------------------------------------------------------------------------
+
+  Scores the INPUT data, not the analysis. Each problem costs points in
+  proportion to how many rows have it:
+
+    score = 100 x (1  -  0.35 x share with no text
+                      -  0.20 x share of duplicates
+                      -  0.20 x share with bad or missing dates
+                      -  0.15 x share with bad or missing ratings
+                      -  0.10 x share with no verified-purchase flag)
+
+  Weights reflect how much each problem limits insight: no text removes a
+  review from theme analysis entirely; duplicates inflate counts; dates
+  drive trends.
+
+  Example (75,618 rows):
+      no text            19,484  -> 0.35 x 25.8 %  = 9.0 points lost
+      duplicates              0  -> 0.20 x  0.0 %  = 0.0
+      missing dates       1,930  -> 0.20 x  2.6 %  = 0.5
+      missing ratings     1,930  -> 0.15 x  2.6 %  = 0.4
+      no verified flag    1,978  -> 0.10 x  2.6 %  = 0.3
+                                                   ------
+                                    total lost       10.2
+      score = 100 - 10.2 = 89.8
+
+  This KPI ignores filters: it describes the whole import.
+
+-------------------------------------------------------------------------------
+ 2.6  Analyst hours saved                                          ESTIMATED
+-------------------------------------------------------------------------------
+
+    hours saved = (reviews in view x minutes per review / 60)
+                  - processing time in hours
+
+  "Minutes per review" is an ASSUMPTION (default 1.5 min) for how long a
+  person would take to read and tag one review by hand. Anyone can change
+  it on the tile; the change is saved for everyone and audit-logged.
+
+  Example: 75,618 x 1.5 / 60 = 1,890.45 h
+           minus 11.3 s of processing (0.003 h)
+           = about 1,890 hours  (~236 eight-hour working days)
+
+  Caveat: it does not subtract the time analysts still spend reading the
+  dashboard, verifying tags and writing up findings.
+
+
+===============================================================================
+ 3. PERSONA DASHBOARD KPIs
+===============================================================================
+
+  Chosen from the Views button. Each persona opens on its own default
+  filters; the figures below are for those defaults.
+
+    Leadership  all reviews            Marketing  all reviews
+    R&D         Product + Packaging    Sales      Retail Execution
+    Analyst     all reviews
+
+  Leadership and Marketing reuse KPIs from section 2 (Intelligence Score,
+  average rating, negative share, positive share, analyst hours saved).
+
+-------------------------------------------------------------------------------
+ 3.1  Negative share                    Leadership, R&D              DERIVED
+-------------------------------------------------------------------------------
+
+    Same as 2.1: negative reviews / reviews with a sentiment label.
+
+  Current values: 3.1 % (all reviews) | 2.7 % (R&D default view)
+
+-------------------------------------------------------------------------------
+ 3.2  Claims, ads and labels                Marketing                DERIVED
+-------------------------------------------------------------------------------
+
+    number of reviews with at least one Communication-vector theme
+
+  Current value: 1,426
+
+-------------------------------------------------------------------------------
+ 3.3  Leaks, caps and seals                    R&D                   DERIVED
+-------------------------------------------------------------------------------
+
+    sum of NEGATIVE mentions of three themes:
+        Leaks and spills  +  Cap and seal  +  Packaging condition
+
+  Counts mentions, not reviews: a review that complains about both a
+  leak and a broken cap counts twice.
+
+  Current value: 977
+
+-------------------------------------------------------------------------------
+ 3.4  Products below average                   R&D                   DERIVED
+-------------------------------------------------------------------------------
+
+    products with 30+ reviews in the view whose Intelligence Score (2.2,
+    with shrinkage) is below the view's overall raw score (the prior)
+
+  Shown as "X of Y", where Y = products with 30+ reviews in the view.
+  The 30-review floor keeps tiny samples out.
+
+  Current value: 116 of 272
+
+-------------------------------------------------------------------------------
+ 3.5  Rising complaint themes                  R&D                   DERIVED
+-------------------------------------------------------------------------------
+
+  For each theme, compare two time windows ending at the LATEST review
+  date in the view (not today's date):
+
+      recent   = the last 30 days
+      baseline = the 90 days before that
+
+      p1 = recent negative mentions   / recent reviews with text
+      p0 = baseline negative mentions / baseline reviews with text
+
+  Two-proportion z-test:
+
+      pooled p = (x1 + x0) / (n1 + n0)
+      z        = (p1 - p0) / sqrt( p x (1 - p) x (1/n1 + 1/n0) )
+
+  A theme counts as RISING when:
+      z >= +1.96              (about 95 % confidence)
+      AND both windows have at least 30 reviews
+
+  The tile shows how many themes are rising. The "Needs your attention"
+  list names them, with the change in percentage points.
+
+  The same test powers the alert agent and the trend arrows elsewhere.
+
+  Current value (R&D view): 1 rising: Refill and pack format
+
+-------------------------------------------------------------------------------
+ 3.6  Retail Execution negative share          Sales                 DERIVED
+-------------------------------------------------------------------------------
+
+    reviews with at least one NEGATIVE Retail Execution theme
+    ---------------------------------------------------------
+    reviews with at least one Retail Execution theme
+
+  Unlike 2.1, this uses theme sentiment (1.2), not whole-review sentiment.
+  A 5-star review that says "great product, late delivery" counts here as
+  a negative Retail Execution mention.
+
+  Current value: 7.8 %
+
+-------------------------------------------------------------------------------
+ 3.7  Delivery and seller issues               Sales                 DERIVED
+-------------------------------------------------------------------------------
+
+    sum of NEGATIVE mentions of three themes:
+        Delivery speed  +  Seller and courier service
+        +  Wrong or missing item
+
+  Counts mentions, not reviews (see 3.3).
+
+  Current value: 864
+
+-------------------------------------------------------------------------------
+ 3.8  Authenticity and expiry                  Sales                 DERIVED
+-------------------------------------------------------------------------------
+
+    sum of ALL mentions (any sentiment) of two themes:
+        Authenticity  +  Expiry and freshness
+
+  Includes positive mentions such as "original talaga" (really genuine),
+  because any talk of authenticity is a signal worth watching.
+
+  Current value: 1,725
+
+-------------------------------------------------------------------------------
+ 3.9  Untagged reviews                         Analyst               DERIVED
+-------------------------------------------------------------------------------
+
+    reviews with text  AND  no theme at all
+
+  These are the reviews the rules could not classify: the candidates for
+  AI tagging or for new taxonomy keywords.
+
+  Current value: 7,983  (56,134 with text - 48,151 with a theme)
+
+-------------------------------------------------------------------------------
+ 3.10 Reviews verified  (X / 385)              Analyst              OBSERVED
+-------------------------------------------------------------------------------
+
+    count of reviews a person has checked in the Verify queue
+
+  385 is a TARGET, not a formula result: it is the sample size that gives
+  a sentiment-accuracy figure within +/- 5 % at 95 % confidence:
+
+      n = z^2 x p x (1 - p) / e^2 = 1.96^2 x 0.5 x 0.5 / 0.05^2 = 384.2
+
+  Current value: 0 / 385
+
+-------------------------------------------------------------------------------
+ 3.11 Theme coverage by vector (chart)         Analyst               DERIVED
+-------------------------------------------------------------------------------
+
+    reviews with at least one theme in the vector / reviews with text
+
+  Current values (of 56,134 reviews with text):
+      Product            36,925   65.8 %
+      Value              17,243   30.7 %
+      Packaging          17,158   30.6 %
+      Retail Execution   13,011   23.2 %
+      Communication       1,426    2.5 %
+
+  These add up to more than 100 % because a review can touch several
+  vectors. Coverage is NOT accuracy: it says a theme was found, not that
+  it was the right one.
+
+
+===============================================================================
+ 4. RULES THAT APPLY TO EVERY KPI
+===============================================================================
+
+  Filters     Every KPI follows the filters in the page address (brand,
+              date range, vector, rating, ...) EXCEPT data quality and
+              processing time, which describe the whole import.
+
+  Duplicates  Excluded by default everywhere (trust weight 0).
+
+  No text     Reviews without text count toward ratings and review totals
+              but not toward sentiment or themes.
+
+  Mentions    KPIs worded as "mentions" (3.3, 3.7, 3.8) add up theme
+  vs reviews  counts and can count one review more than once. KPIs worded
+              as "reviews" count each review once.
+
+  Repeatable  Every DERIVED figure is deterministic: re-running it on the
+              same data gives the same number. Method notes are under the
+              "How is this calculated?" panel on the dashboards.
+
+
+===============================================================================
+ 5. QUICK REFERENCE
+===============================================================================
+
+  KPI                            Label      Formula in one line
+  -----------------------------  ---------  ----------------------------------
+  Positive / negative share      DERIVED    label count / labelled reviews
+  Intelligence Score             DERIVED    100 x (.40 S + .35 R + .25 Q),
+                                            then shrunk toward the prior
+  Products                       DERIVED    distinct canonical products
+  Rating disagrees with text     DERIVED    stars vs words, |compound| >= .30
+  Data quality                   DERIVED    100 x (1 - weighted problem shares)
+  Analyst hours saved            ESTIMATED  reviews x min / 60 - processing
+  Claims, ads and labels         DERIVED    reviews in Communication vector
+  Leaks, caps and seals          DERIVED    negative mentions of 3 themes
+  Products below average         DERIVED    30+ reviews and score < prior
+  Rising complaint themes        DERIVED    z-test, last 30 d vs 90 d before
+  Retail Execution neg. share    DERIVED    neg. RE reviews / RE reviews
+  Delivery and seller issues     DERIVED    negative mentions of 3 themes
+  Authenticity and expiry        DERIVED    all mentions of 2 themes
+  Untagged reviews               DERIVED    text but no theme
+  Theme coverage by vector       DERIVED    vector reviews / reviews with text
+  Reviews verified               OBSERVED   person-checked reviews (target 385)
+
+  For reference, these KPIs are OBSERVED (no formula): Reviews, Average
+  rating, Verified purchases, Processing time.
+
+===============================================================================
