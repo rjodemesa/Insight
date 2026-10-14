@@ -30,6 +30,12 @@
   --color-ai: #b54708;
   --color-estimated: #475467;
 
+  /* Chart chrome and meter tracks (read via var() in components/charts). */
+  --chart-grid: #e1e0d9;
+  --chart-label: #4a5873;
+  --chart-surface: #ffffff;
+  --score-track: #cde2fb;
+
   --font-brand: ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --radius: 0.5rem;
 }

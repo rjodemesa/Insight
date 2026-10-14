@@ -1,0 +1,65 @@
+/*
+ * Dark mode. Applies when <html data-theme="dark"> (set by components/ThemeToggle.tsx,
+ * remembered per browser; light is the default). Light tokens live in globals.css.
+ *
+ * In dark mode the brand and sentiment tokens are the LIGHT shades, because they are
+ * mostly used as text on a dark surface. The few places that use them as a filled
+ * background under white text are overridden at the bottom to deeper shades.
+ * All text/background pairs meet WCAG AA (4.5:1).
+ *
+ * These rules are not in a CSS layer, so they win over Tailwind's utilities.
+ */
+html[data-theme="dark"] {
+  color-scheme: dark; /* native inputs, selects and scrollbars */
+
+  --color-brand: #8db4ff;
+  --color-brand-strong: #1d4fa8; /* hover fill under white text */
+  --color-brand-soft: #1c2a47;
+  --color-brand-light: #38bdf8;
+  --color-ink: #e6ebf5;
+  --color-ink-muted: #a3aec4;
+  --color-surface: #131c2e;
+  --color-canvas: #0b1220;
+  --color-border: #2a3650;
+
+  --color-positive: #5fd38a;
+  --color-neutral: #a3aec4;
+  --color-negative: #ff8a80;
+
+  --color-observed: #8db4ff;
+  --color-derived: #b69cff;
+  --color-ai: #f5a25b;
+  --color-estimated: #a3aec4;
+
+  --chart-grid: #2a3650;
+  --chart-label: #a3aec4;
+  --chart-surface: #131c2e;
+  --score-track: #23395e;
+}
+
+/* The stripe keeps the real brand blue at its left end. */
+html[data-theme="dark"] .brand-stripe {
+  background: linear-gradient(90deg, #2560c8 0%, var(--color-brand-light) 100%);
+}
+
+/* Filled backgrounds under white text: deeper shades. */
+html[data-theme="dark"] .bg-brand { background-color: #2560c8; }
+html[data-theme="dark"] .bg-brand\/70 { background-color: rgb(37 96 200 / 0.7); }
+html[data-theme="dark"] .bg-positive { background-color: #1b7f3b; }
+html[data-theme="dark"] .bg-negative { background-color: #b42318; }
+html[data-theme="dark"] .bg-estimated { background-color: #475467; }
+
+/* Hard-coded colours in components (Tailwind arbitrary values). */
+html[data-theme="dark"] .text-\[\#1c5cab\] { color: #8db4ff; }
+html[data-theme="dark"] .border-\[\#2a78d6\] { border-color: #5b9bea; }
+html[data-theme="dark"] .bg-\[\#fff4e5\] { background-color: #3a2a10; }
+html[data-theme="dark"] .text-\[\#8a4b00\] { color: #ffc078; }
+html[data-theme="dark"] .text-\[\#9a6700\] { color: #f0b429; }
+html[data-theme="dark"] .bg-\[\#c9c7c1\] { background-color: #5c6577; }
+
+/* Shadows read as smudges on dark; a hairline does the job instead. */
+html[data-theme="dark"] .shadow-md,
+html[data-theme="dark"] .shadow,
+html[data-theme="dark"] .shadow-sm {
+  box-shadow: 0 0 0 1px var(--color-border);
+}

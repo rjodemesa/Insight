@@ -8,16 +8,19 @@ import { theme } from "@/lib/theme";
  * segments, legends in text ink beside a colored swatch, and a table view for every chart.
  */
 export const C = theme.chart;
-export const SURFACE = "#ffffff";
+/** CSS variables (light values in globals.css, dark in dark.css), so charts follow the theme. */
+export const SURFACE = "var(--chart-surface)";
+const GRID = "var(--chart-grid)";
+export const LABEL = "var(--chart-label)";
 export const BAR_SIZE = 18;
 
 export const axisProps = {
-  stroke: C.grid,
-  tick: { fill: C.label, fontSize: 12 },
+  stroke: GRID,
+  tick: { fill: LABEL, fontSize: 12 },
   tickLine: false,
 } as const;
 
-export const gridProps = { stroke: C.grid, strokeDasharray: undefined, vertical: false } as const;
+export const gridProps = { stroke: GRID, strokeDasharray: undefined, vertical: false } as const;
 
 export const SENTIMENT_SERIES = [
   { key: "positive", label: "Positive", color: C.positive },

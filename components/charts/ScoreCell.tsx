@@ -7,7 +7,7 @@ export default function ScoreCell({ s }: { s: ScoreResult }) {
   return (
     <span className="inline-flex items-center gap-2" title={`Raw ${s.raw ?? "–"}, shrunk toward ${s.prior ?? "–"} · n=${s.n} · reliability ${s.reliability}`}>
       <span className="tabular-nums font-medium">{s.score.toFixed(1)}</span>
-      <span aria-hidden="true" className="relative inline-block h-1.5 w-16 overflow-hidden rounded-full" style={{ backgroundColor: "#cde2fb" }}>
+      <span aria-hidden="true" className="relative inline-block h-1.5 w-16 overflow-hidden rounded-full" style={{ backgroundColor: "var(--score-track)" }}>
         <span className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${s.score}%`, backgroundColor: C.single }} />
       </span>
       {s.reliability === "low" && <span className="text-[11px] text-ink-muted">low n</span>}

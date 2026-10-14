@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import type { Role } from "@/lib/auth/session";
+import ThemeToggle from "./ThemeToggle";
 
 interface Tab {
   href: string;
@@ -89,6 +90,7 @@ export default function AppNav({ role, email, csrfToken }: { role: Role; email: 
         <Link href="/audit" title="Audit Log (g a)" aria-label="Audit Log" className="rounded px-2 py-1 text-ink-muted hover:bg-brand-soft">
           <span aria-hidden="true">≣</span>
         </Link>
+        <ThemeToggle />
         <span className="text-xs text-ink-muted">
           {email} · {role === "it_officer" ? "IT officer" : "User"}
         </span>

@@ -28,7 +28,7 @@ export default function ScoreBreakdown({ s, comparedWith, formula, trustWeight }
               <div key={k} className="flex items-center gap-2">
                 <dt className="w-40 text-ink-muted">{label} <span className="text-xs">({weight})</span></dt>
                 <dd className="flex flex-1 items-center gap-2">
-                  <span aria-hidden="true" className="relative h-2 flex-1 overflow-hidden rounded-full" style={{ backgroundColor: "#cde2fb" }}>
+                  <span aria-hidden="true" className="relative h-2 flex-1 overflow-hidden rounded-full" style={{ backgroundColor: "var(--score-track)" }}>
                     <span className="absolute inset-y-0 left-0 rounded-full" style={{ width: `${(v ?? 0) * 100}%`, backgroundColor: C.single }} />
                   </span>
                   <span className="w-12 text-right tabular-nums">{pct(v, 0)}</span>

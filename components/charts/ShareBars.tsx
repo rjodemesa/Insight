@@ -5,7 +5,7 @@ import { Bar, BarChart, CartesianGrid, LabelList, ResponsiveContainer, Tooltip, 
 import Card from "@/components/ui/Card";
 import { num, pct } from "@/components/ui/format";
 import type { Provenance } from "@/lib/theme";
-import { axisProps, BAR_SIZE, C, DataTable, ExportLink, gridProps, TooltipBox, ViewToggle, type ChartView } from "./common";
+import { axisProps, BAR_SIZE, C, DataTable, ExportLink, gridProps, LABEL, TooltipBox, ViewToggle, type ChartView } from "./common";
 
 export interface ShareRow {
   key: string;
@@ -75,7 +75,7 @@ export default function ShareBars({
               />
               <Bar dataKey="value" fill={C.single} maxBarSize={BAR_SIZE} radius={[0, 4, 4, 0]} cursor="pointer" isAnimationActive={false}
                 onClick={(d) => onOpen((d as unknown as { payload: ShareRow }).payload.key)}>
-                <LabelList dataKey="value" position="right" fill={C.label} fontSize={11}
+                <LabelList dataKey="value" position="right" fill={LABEL} fontSize={11}
                   formatter={(v: unknown) => pct(v as number)} />
               </Bar>
             </BarChart>
